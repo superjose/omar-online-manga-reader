@@ -1,0 +1,16 @@
+{
+  "name": "rust-manga",
+  "version": "1.0.0",
+  "description": "This is a rustified version of the manga reader",
+  "main": "src/main.rs",
+  "author": "Jose <superjose_49@hotmail.com>",
+  "license": "MIT",
+  "private": false,
+  "scripts": {
+    "tailwind": "tailwindcss -c ./tailwind.config.js -o ./tailwind.css",
+    "tailwind:prod": "NODE_ENV=production tailwindcss -c ./tailwind.config.js -o ./tailwind.css --minify"
+  },
+  "devDependencies": {
+    "tailwindcss": "^3.2.4"
+  }
+}

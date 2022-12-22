@@ -13,10 +13,12 @@ pub fn Navbar<'a>(cx: Scope<'a, NavbarProps<'a>>) -> Element<'a> {
     cx.render(rsx! (
         div {
             button {
+                class: "p-1 bg-red-700",
                 onclick: go_prev,
                 "<",
             }
             button {
+                class: "p-1 bg-red-700",
                 onclick: go_next,
                 ">"
             }
