@@ -1,0 +1,12 @@
+[package]
+name = "rust-manga"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+dioxus = { version = "0.2.4", features = ["web", "html"] }
+dioxus-html = "0.2.1"
+dioxus-logger = "0.3.0"
+log = "0.4.17"
