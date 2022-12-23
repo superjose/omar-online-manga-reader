@@ -2,6 +2,7 @@ use dioxus::{core::UiEvent, events::*, prelude::*};
 mod navbar;
 use log::LevelFilter;
 use std::cmp::{max, min};
+mod components;
 mod manga;
 
 // impl PartialOrd for UseState<i32> {
@@ -38,17 +39,18 @@ fn app(cx: Scope) -> Element {
         _ => {}
     };
 
-    cx.render(rsx!(
-        div {
-            class: "display",
-            onkeydown: change_evt,
-            navbar::Navbar {
-                page_state: &index,
+    cx.render(rsx!(components::atoms::container::Container {
+        children: cx.render(rsx!(
+            div {
+                class: "display",
+                onkeydown: change_evt,
+                navbar::Navbar {
+                    page_state: &index,
+                }
+                manga::Manga {
+                    page_state: &index,
+                }
             }
-            manga::Manga {
-                page_state: &index,
-            }
-
-        },
-    ))
+        ))
+    }))
 }
