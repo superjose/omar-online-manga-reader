@@ -1,20 +1,34 @@
-use dioxus::prelude::*;
+use yew::prelude::*;
 
-#[derive(PartialEq, Props)]
-pub struct MangaProps<'a> {
-    page_state: &'a UseState<i32>,
-}
+use super::state::use_manga_context;
 
-pub fn Manga<'a>(cx: Scope<'a, MangaProps<'a>>) -> Element<'a> {
-    let page = cx.props.page_state;
+// #[derive(PartialEq, Props)]
+// pub struct MangaProps<'a> {
+//     page_state: &'a UseState<i32>,
+// }
 
-    let prepend = if (page.get() < &10) { "0" } else { "" };
+#[function_component(Manga)]
+pub fn manga() -> Html {
+    let state = use_manga_context().unwrap();
 
-    let url = format!("/assets/manga/one_piece/1042/{}{}.jpg", prepend, &page);
+    // let page = cx.props.page_state;
+    let chapter = state.chapter.to_owned();
+    let page = state.page.to_owned();
 
-    cx.render(rsx! {
-        img {
-            src: "{url}"
-        }
-    })
+    let prepend = if &page < &10 { "0" } else { "" };
+
+    // let url = format!("/assets/manga/one_piece/1042/{}{}.jpg", prepend, &page);
+    let url = format!(
+        "/assets/manga/one_piece/{}/{}{}.jpg",
+        chapter, prepend, page
+    );
+    // let url = "/assets/manga/one_piece/1042/01.jpg";
+    html! {
+        <img src={url} alt="manga" />
+    }
+    // cx.render(rsx! {
+    //     img {
+    //         src: "{url}"
+    //     }
+    // })
 }

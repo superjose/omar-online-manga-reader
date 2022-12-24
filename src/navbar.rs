@@ -1,28 +1,33 @@
-use dioxus::{core::UiEvent, events::MouseData, prelude::*};
-use std::cmp::{max, min};
+use super::components::atoms::buttons::button::Button;
+use yew::prelude::*;
 
-#[derive(PartialEq, Props)]
-pub struct NavbarProps<'a> {
-    page_state: &'a UseState<i32>,
-}
+use wasm_bindgen::UnwrapThrowExt;
+use web_sys::window;
 
-pub fn Navbar<'a>(cx: Scope<'a, NavbarProps<'a>>) -> Element<'a> {
-    let go_next = move |_: UiEvent<MouseData>| cx.props.page_state.modify(|val| min(val + 1, 17));
-    let go_prev = move |_: UiEvent<MouseData>| cx.props.page_state.modify(|val| max(val - 1, 1));
+use super::state::{use_manga_context, MangaAction};
 
-    cx.render(rsx! (
-        div {
-            class: "block col-2",
-            button {
-                class: "p-1 bg-red-300",
-                onclick: go_prev,
-                "<",
-            }
-            button {
-                class: "p-1 bg-red-700",
-                onclick: go_next,
-                ">"
-            }
-        }
-    ))
+#[function_component(Navbar)]
+pub fn navbar() -> Html {
+    let state = use_manga_context().unwrap();
+
+    let go_prev = {
+        let state = state.clone();
+        Callback::from(move |_| {
+            state.dispatch(MangaAction::Prev);
+        })
+    };
+
+    let go_next = {
+        let state = state.clone();
+        Callback::from(move |_| {
+            state.dispatch(MangaAction::Next);
+        })
+    };
+
+    html! {
+        <section class="mt-6 mb-6 flex justify-around">
+            <Button text={"<"} on_click={go_prev} />
+            <Button text={">"} on_click={go_next} />
+        </section>
+    }
 }

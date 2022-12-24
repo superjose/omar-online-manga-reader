@@ -1,9 +1,14 @@
-use dioxus::{core::UiEvent, events::*, prelude::*};
-mod navbar;
-use log::LevelFilter;
-use std::cmp::{max, min};
+use yew::prelude::*;
+// mod navbar;
 mod components;
 mod manga;
+mod navbar;
+mod state;
+
+use components::atoms::container::Container;
+use manga::Manga;
+use navbar::Navbar;
+use state::MangaContextProvider;
 
 // impl PartialOrd for UseState<i32> {
 //     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
@@ -24,33 +29,18 @@ mod manga;
  * You'll see them in the dist directory!
  */
 
-fn main() {
-    dioxus_logger::init(LevelFilter::Info).expect("failed to init logger");
-    dioxus::web::launch(app);
+#[function_component(App)]
+fn app() -> Html {
+    html! {
+        <MangaContextProvider>
+           <Container>
+                <Navbar />
+                <Manga />
+           </Container>
+        </MangaContextProvider>
+    }
 }
 
-fn app(cx: Scope) -> Element {
-    let mut index = use_state(&cx, || 1);
-    let val = index.get() as &i32;
-
-    let change_evt = move |evt: KeyboardEvent| match evt.key.as_str() {
-        "ArrowRight" => index += 1,
-        "ArrowLeft" => index.modify(|val| max(1, *val - 1)), //index = max(&num.try_into(), &val.try_into()),
-        _ => {}
-    };
-
-    cx.render(rsx!(components::atoms::container::Container {
-        children: cx.render(rsx!(
-            div {
-                class: "display",
-                onkeydown: change_evt,
-                navbar::Navbar {
-                    page_state: &index,
-                }
-                manga::Manga {
-                    page_state: &index,
-                }
-            }
-        ))
-    }))
+fn main() {
+    yew::Renderer::<App>::new().render();
 }
