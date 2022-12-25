@@ -1,7 +1,7 @@
 use super::components::atoms::buttons::button::Button;
 use yew::prelude::*;
 
-use wasm_bindgen::UnwrapThrowExt;
+use wasm_bindgen::{prelude::Closure, JsCast, UnwrapThrowExt};
 use web_sys::window;
 
 use super::state::{use_manga_context, MangaAction};
@@ -23,6 +23,31 @@ pub fn navbar() -> Html {
             state.dispatch(MangaAction::Next);
         })
     };
+    let win = window().expect_throw("window is undefined");
+
+    use_effect(move || {
+        let callback = Closure::wrap(Box::new(move |e: web_sys::KeyboardEvent| {
+            let key = e.key();
+            let key_str = key.as_str();
+            match key_str {
+                "ArrowLeft" => {
+                    state.dispatch(MangaAction::Prev);
+                }
+                "ArrowRight" => {
+                    state.dispatch(MangaAction::Next);
+                }
+                _ => {}
+            }
+        }) as Box<dyn FnMut(_)>);
+
+        win.add_event_listener_with_callback("keydown", callback.as_ref().unchecked_ref())
+            .unwrap();
+
+        move || {
+            win.remove_event_listener_with_callback("keydown", callback.as_ref().unchecked_ref())
+                .unwrap();
+        }
+    });
 
     html! {
         <section class="mt-6 mb-6 flex justify-around">

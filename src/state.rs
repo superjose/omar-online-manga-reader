@@ -1,6 +1,14 @@
 use std::{cmp::max, rc::Rc};
-
 use yew::prelude::*;
+
+extern crate web_sys;
+
+// A macro to provide `println!(..)`-style syntax for `console.log` logging.
+macro_rules! log {
+    ( $( $t:tt )* ) => {
+        web_sys::console::log_1(&format!( $( $t )* ).into());
+    }
+}
 
 pub enum MangaAction {
     Prev,
@@ -35,11 +43,14 @@ impl Reducible for MangaState {
                 chapter: self.chapter,
             }
             .into(),
-            MangaAction::Next => Self {
-                page: self.page + 1,
-                chapter: self.chapter,
+            MangaAction::Next => {
+                log!("self.page {}", self.page);
+                Self {
+                    page: self.page + 1,
+                    chapter: self.chapter,
+                }
+                .into()
             }
-            .into(),
         }
     }
 }

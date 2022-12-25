@@ -10,5 +10,5 @@ yew = { version = "0.20", features = ["csr"] }
 log = "0.4.17"
 yew-agent = "0.2.0"
 serde = { version = "1.0.151", features = ["derive"] }
-web-sys = "0.3.60"
+web-sys = { version = "0.3.60", features = ['console'] }
 wasm-bindgen = { version = "0.2.83" }
