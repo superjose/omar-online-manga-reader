@@ -1,4 +1,5 @@
 use super::components::atoms::buttons::button::Button;
+use super::components::molecules::dropdowns::manga_dropdown::MangaDropdown;
 use yew::prelude::*;
 
 use wasm_bindgen::{prelude::Closure, JsCast, UnwrapThrowExt};
@@ -52,6 +53,7 @@ pub fn navbar() -> Html {
     html! {
         <section class="mt-6 mb-6 flex justify-around">
             <Button text={"<"} on_click={go_prev} />
+            <MangaDropdown />
             <Button text={">"} on_click={go_next} />
         </section>
     }

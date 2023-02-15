@@ -18,6 +18,7 @@ use state::MangaContextProvider;
 
 #[function_component(App)]
 fn app() -> Html {
+    wasm_logger::init(wasm_logger::Config::default());
     html! {
         <MangaContextProvider>
            <Container>

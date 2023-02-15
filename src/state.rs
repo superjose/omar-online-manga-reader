@@ -1,4 +1,4 @@
-use std::{cmp::max, rc::Rc};
+use std::{cmp::max, collections::HashMap, fs, rc::Rc};
 use yew::prelude::*;
 
 extern crate web_sys;
@@ -17,6 +17,7 @@ pub enum MangaAction {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct MangaState {
+    chapter_state: HashMap<i32, i32>,
     pub page: i32,
     pub chapter: i32,
 }
@@ -25,7 +26,14 @@ pub type MangaContext = UseReducerHandle<MangaState>;
 
 impl Default for MangaState {
     fn default() -> Self {
+        // let dir = "./assets/manga/one_piece";
+        // let total_chapters = fs::read_dir(dir)
+        //     .unwrap()
+        //     .filter(|entry| entry.as_ref().unwrap().metadata().unwrap().is_file())
+        //     .count();
+        // log!("TOTAL CHAPTERS {}", total_chapters);
         Self {
+            chapter_state: HashMap::new(),
             page: 1,
             chapter: 1043,
         }
@@ -41,6 +49,7 @@ impl Reducible for MangaState {
             MangaAction::Prev => Self {
                 page: max(self.page - 1, 1),
                 chapter: self.chapter,
+                chapter_state: self.chapter_state.to_owned(),
             }
             .into(),
             MangaAction::Next => {
@@ -48,6 +57,7 @@ impl Reducible for MangaState {
                 Self {
                     page: self.page + 1,
                     chapter: self.chapter,
+                    chapter_state: self.chapter_state.to_owned(),
                 }
                 .into()
             }
