@@ -1,5 +1,9 @@
 use std::{collections::HashMap, fs};
 
+/**
+ * Recreates a HashMap<i16, i8> that from the directory structure of the manga
+ * that is consumed by the state.rs
+ */
 fn main() {
     println!("cargo:rerun-if-changed=build.rs");
     let out_dir = "./src/";
@@ -48,8 +52,11 @@ fn main() {
 
     println!("cargo:warning={:?}", &chapter_concat);
 
-    let info_rs = format!(
+    let chapter_map_rs = format!(
         "
+        // Automatically generated - see build.rs
+        // Do not modify manually!
+
         use std::collections::HashMap;
         pub fn get_chapters() -> HashMap<i16, i8> {{
         let chapter_state: HashMap<i16, i8> = HashMap::from({});
@@ -60,6 +67,6 @@ fn main() {
         chapter_concat
     );
 
-    let dest_path = format!("{}/info.rs", out_dir);
-    fs::write(&dest_path, info_rs).unwrap();
+    let dest_path = format!("{}/chapter_map.rs", out_dir);
+    fs::write(&dest_path, chapter_map_rs).unwrap();
 }
