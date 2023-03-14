@@ -1,10 +1,9 @@
-use log::log;
 use yew::prelude::*;
 
 #[derive(PartialEq, Clone)]
 pub enum SelectOptionValue {
     Int(i32),
-    String(String),
+    // String(String),
 }
 
 #[derive(PartialEq)]
@@ -30,7 +29,7 @@ pub fn dropdown(props: &DropdownProps) -> Html {
         .map(|option| {
             let value = match &option.value {
                 SelectOptionValue::Int(v) => v.to_string(),
-                SelectOptionValue::String(s) => s.clone().to_string(),
+                // SelectOptionValue::String(s) => s.clone().to_string(),
             };
             log::info!("Value is {}", value == props.selected.to_string());
             html! {

@@ -1,4 +1,4 @@
-use std::{cmp::max, collections::HashMap, fs, rc::Rc};
+use std::{cmp::max, collections::HashMap, rc::Rc};
 use yew::prelude::*;
 
 extern crate web_sys;

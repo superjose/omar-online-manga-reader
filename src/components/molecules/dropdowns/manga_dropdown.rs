@@ -1,5 +1,5 @@
 use super::dropdown::*;
-use crate::state::{use_manga_context, MangaAction};
+use crate::state::use_manga_context;
 
 use yew::prelude::*;
 
