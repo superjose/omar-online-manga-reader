@@ -33,8 +33,3 @@ fn app() -> Html {
 fn main() {
     yew::Renderer::<App>::new().render();
 }
-use std::collections::HashMap;
-fn get_chapters() -> HashMap<i16, i8> {
-    let mut chapter_state: HashMap<i16, i8> = HashMap::from([(1047, 16), (1046, 15), (1044, 11)]);
-    chapter_state
-}
