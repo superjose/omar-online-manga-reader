@@ -22,13 +22,10 @@ pub fn manga() -> Html {
         "/assets/manga/one_piece/{}/{}{}.jpg",
         chapter, prepend, page
     );
-    // let url = "/assets/manga/one_piece/1042/01.jpg";
+
     html! {
-        <img src={url} alt="manga" />
+        <div class="p-4 md:p-0">
+            <img class="my-0 mx-auto" src={url} alt="manga" />
+        </div>
     }
-    // cx.render(rsx! {
-    //     img {
-    //         src: "{url}"
-    //     }
-    // })
 }

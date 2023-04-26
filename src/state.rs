@@ -1,31 +1,40 @@
-use std::{cmp::max, collections::HashMap, rc::Rc};
+use super::chapter_map::get_chapters;
+use gloo::console::log;
+use gloo::utils::window;
+use std::{
+    cmp::{max, min},
+    collections::HashMap,
+    rc::Rc,
+};
 use yew::prelude::*;
 
 extern crate web_sys;
 
-// A macro to provide `println!(..)`-style syntax for `console.log` logging.
-macro_rules! log {
-    ( $( $t:tt )* ) => {
-        web_sys::console::log_1(&format!( $( $t )* ).into());
-    }
-}
-
 pub enum MangaAction {
     Prev,
     Next,
+    ChangeChapter(i16),
+    ChangePage(i16),
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct MangaState {
-    chapter_state: HashMap<i32, i32>,
-    pub page: i32,
-    pub chapter: i32,
+    chapter_state: HashMap<i16, i8>,
+    pub page: i8,
+    pub total_pages: i8,
+    pub total_chapters: i16,
+    pub chapter: i16,
 }
 
 pub type MangaContext = UseReducerHandle<MangaState>;
 
 impl Default for MangaState {
     fn default() -> Self {
+        let chapter_state = get_chapters();
+
+        let chapter = chapter_state.keys().max().unwrap().to_owned();
+        let total_chapters = chapter.clone();
+        let total_pages = chapter_state.get(&chapter).unwrap().to_owned();
         // let dir = "./assets/manga/one_piece";
         // let total_chapters = fs::read_dir(dir)
         //     .unwrap()
@@ -33,9 +42,11 @@ impl Default for MangaState {
         //     .count();
         // log!("TOTAL CHAPTERS {}", total_chapters);
         Self {
-            chapter_state: HashMap::new(),
+            chapter_state,
             page: 1,
-            chapter: 1043,
+            chapter,
+            total_pages,
+            total_chapters,
         }
     }
 }
@@ -45,22 +56,46 @@ impl Reducible for MangaState {
     type Action = MangaAction;
 
     fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
+        let win = window();
+        win.scroll_to_with_x_and_y(0.0, 0.0);
         match action {
             MangaAction::Prev => Self {
                 page: max(self.page - 1, 1),
-                chapter: self.chapter,
-                chapter_state: self.chapter_state.to_owned(),
+                ..(*self).clone()
             }
             .into(),
             MangaAction::Next => {
-                log!("self.page {}", self.page);
+                let mut new_page = self.page + 1;
+                let mut chapter = self.chapter;
+
+                if new_page > self.total_pages && chapter < self.total_chapters {
+                    chapter = self.chapter + 1;
+                    new_page = 1;
+                }
+
                 Self {
-                    page: self.page + 1,
-                    chapter: self.chapter,
-                    chapter_state: self.chapter_state.to_owned(),
+                    page: min(new_page, self.total_pages),
+                    chapter,
+                    ..(*self).clone()
+                }
+            }
+            .into(),
+            MangaAction::ChangeChapter(chapter) => {
+                let total_pages = self.chapter_state.get(&chapter).unwrap().to_owned();
+
+                Self {
+                    page: 1,
+                    chapter,
+                    total_pages,
+                    ..(*self).clone()
                 }
                 .into()
             }
+            MangaAction::ChangePage(page) => Self {
+                page: i8::try_from(page).unwrap(),
+                ..(*self).clone()
+            }
+            .into(),
         }
     }
 }

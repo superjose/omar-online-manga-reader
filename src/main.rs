@@ -1,6 +1,6 @@
 use yew::prelude::*;
+mod chapter_map;
 mod components;
-pub mod info;
 mod manga;
 mod navbar;
 mod state;

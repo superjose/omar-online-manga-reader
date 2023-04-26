@@ -35,3 +35,4 @@ https://dev.to/arctic_hen7/how-to-set-up-tailwind-css-with-yew-and-trunk-il9
 
 ### Notes
 - The build.rs file is used to read the files from a directory and return it in a concrete rust file that will be used by yew to extract it.
+- https://github.dev/brooks-builds/full-stack-todo-rust-course

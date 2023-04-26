@@ -533,6 +533,7 @@ dependencies = [
 name = "rust-manga"
 version = "0.1.0"
 dependencies = [
+ "gloo",
  "log",
  "serde",
  "wasm-bindgen",

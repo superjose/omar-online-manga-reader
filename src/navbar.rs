@@ -30,6 +30,7 @@ pub fn navbar() -> Html {
         let callback = Closure::wrap(Box::new(move |e: web_sys::KeyboardEvent| {
             let key = e.key();
             let key_str = key.as_str();
+
             match key_str {
                 "ArrowLeft" => {
                     state.dispatch(MangaAction::Prev);
@@ -53,7 +54,7 @@ pub fn navbar() -> Html {
     html! {
         <section class="mt-6 mb-6 flex justify-around">
             <Button text={"<"} on_click={go_prev} />
-            <MangaDropdown />
+            <form name="manga_dropdown" autocomplete="off"><MangaDropdown /></form>
             <Button text={">"} on_click={go_next} />
         </section>
     }

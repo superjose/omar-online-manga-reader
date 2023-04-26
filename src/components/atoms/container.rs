@@ -9,7 +9,7 @@ pub struct ContainerProps {
 #[function_component(Container)]
 pub fn container(props: &ContainerProps) -> Html {
     html! {
-        <div class="my-auto mx-auto md:w-3/5 w-full">
+        <div class="my-auto mx-auto md:w-4/5 w-full">
             {props.children.clone()}
         </div>
     }
