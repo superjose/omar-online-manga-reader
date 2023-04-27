@@ -45,7 +45,7 @@ pub fn manga_dropdown() -> Html {
     options.reverse();
 
     html! {
-       <>
+       <div class="flex gap-4">
             <Dropdown
                 options={options}
                 selected={chapter}
@@ -56,6 +56,6 @@ pub fn manga_dropdown() -> Html {
                 selected={state.page as i16}
                 onchange={handle_page_change}
             />
-       </>
+       </div>
     }
 }

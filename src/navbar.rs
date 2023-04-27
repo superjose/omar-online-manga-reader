@@ -1,4 +1,5 @@
-use super::components::atoms::buttons::button::Button;
+use crate::components::molecules::icon_button::icon_button::{Icon, IconButton};
+
 use super::components::molecules::dropdowns::manga_dropdown::MangaDropdown;
 use yew::prelude::*;
 
@@ -53,9 +54,10 @@ pub fn navbar() -> Html {
 
     html! {
         <section class="mt-6 mb-6 flex justify-around">
-            <Button text={"<"} on_click={go_prev} />
+            <IconButton on_click={go_prev} icon={Icon::LeftArrow} />
             <form name="manga_dropdown" autocomplete="off"><MangaDropdown /></form>
-            <Button text={">"} on_click={go_next} />
+            <IconButton on_click={go_next} icon={Icon::RightArrow}/>
+
         </section>
     }
 }

@@ -35,13 +35,9 @@ pub fn dropdown(props: &DropdownProps) -> Html {
                 SelectOptionValue::Int(v) => v.to_string(),
                 // SelectOptionValue::String(s) => s.clone().to_string(),
             };
-            log!(
-                "Selected is {} {}",
-                props.selected.clone().to_string(),
-                value.clone()
-            );
+
             html! {
-                <option value={value.to_string()} selected={props.selected.to_string() == value}
+                <option value={value.to_string()} /*selected={props.selected.to_string() == value}*/
                     >
                     {&option.label}
                 </option>
@@ -58,14 +54,12 @@ pub fn dropdown(props: &DropdownProps) -> Html {
                 .selected_index();
 
             let value = i16::try_from(index).unwrap();
-
-            log!("Value is {}", value.to_string());
             props_on_change.emit(value + 1);
         })
     };
 
     html! {
-        <select autocomplete="off" ref={select_ref} onchange={handle_on_change}>
+        <select class="p-4 rounded-lg bg-slate-200" autocomplete="off" ref={select_ref} onchange={handle_on_change} value={props.selected.to_string()}>
             {options}
         </select>
     }
