@@ -15,7 +15,7 @@ You can include it in your site, run it locally or do whatever you want.
 
 In 2010, I began a site called [innerbleach.com](http://web.archive.org/web/20140503061934/http://innerbleach.com/content/online-manga-reader-ver-20) (Which is now deceased). 
 
-<img width="400px" style="display:block; margin: 0 auto; text-align:center;" >
+<img width="400px" src="src/assets/screenshots/the_beginning.png" style="display:block; margin: 0 auto; text-align:center;" >
 
 I built a manga reader that made the reading experience unique and pleasant. I also believed it was one of its kind, as it allowed you to:
 
@@ -47,7 +47,7 @@ trunk serve
 
 # How to add your manga.
 
-Create the following structure:
+Create the following structure:<br/>
 <img src="/src/assets/screenshots/how_to_load_manga.png">
 
 1. Create a folder inside `src/assets` called `manga`.
