@@ -1,4 +1,4 @@
-use crate::components::atoms::buttons::button::{Button, ButtonProps};
+use crate::components::atoms::buttons::button::Button;
 use yew::prelude::*;
 
 const BASE_ASSET_URL: &str = "/assets/icons";

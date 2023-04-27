@@ -1,5 +1,4 @@
 use super::chapter_map::get_chapters;
-use gloo::console::log;
 use gloo::utils::window;
 use std::{
     cmp::{max, min},
@@ -81,12 +80,12 @@ impl Reducible for MangaState {
             }
             .into(),
             MangaAction::ChangeChapter(chapter) => {
-                let total_pages = self.chapter_state.get(&chapter).unwrap().to_owned();
+                let total_pages = self.chapter_state.get(&chapter).unwrap_or(&1);
 
                 Self {
                     page: 1,
                     chapter,
-                    total_pages,
+                    total_pages: *total_pages,
                     ..(*self).clone()
                 }
                 .into()

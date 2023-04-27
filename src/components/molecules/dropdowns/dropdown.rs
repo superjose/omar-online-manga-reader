@@ -1,5 +1,4 @@
-use gloo::console::log;
-use wasm_bindgen::{prelude::Closure, JsCast};
+use wasm_bindgen::JsCast;
 use web_sys::HtmlSelectElement;
 use yew::prelude::*;
 
@@ -20,6 +19,8 @@ pub struct DropdownProps {
     #[prop_or(Callback::noop())]
     pub onchange: Callback<i16>,
     pub options: Vec<SelectOption>,
+    #[prop_or_default]
+    pub options_reversed: bool,
     pub selected: i16,
 }
 
@@ -37,7 +38,7 @@ pub fn dropdown(props: &DropdownProps) -> Html {
             };
 
             html! {
-                <option value={value.to_string()} /*selected={props.selected.to_string() == value}*/
+                <option value={value.to_string()} selected={props.selected.to_string() == value}
                     >
                     {&option.label}
                 </option>
@@ -46,20 +47,48 @@ pub fn dropdown(props: &DropdownProps) -> Html {
         .collect::<Html>();
     let handle_on_change = {
         let props_on_change = props.onchange.clone();
+        let options_reversed = props.options_reversed.clone();
         Callback::from(move |event: Event| {
-            let index = event
+            let select = event
                 .target()
                 .unwrap()
-                .unchecked_into::<HtmlSelectElement>()
-                .selected_index();
+                .unchecked_into::<HtmlSelectElement>();
+            let select_index = i16::try_from(select.selected_index()).unwrap();
+            let select_length = i16::try_from(select.length()).unwrap();
 
-            let value = i16::try_from(index).unwrap();
-            props_on_change.emit(value + 1);
+            let value = i16::try_from(select_index).unwrap();
+
+            let value_to_emit = if options_reversed {
+                select_length - select_index
+            } else {
+                value + 1
+            };
+
+            props_on_change.emit(value_to_emit);
         })
     };
 
+    // TODO
+    // use_effect_with_deps(
+    //     move |_| {
+    //         let select = select_ref
+    //             .cast::<HtmlSelectElement>()
+    //             .expect("select_ref not set");
+
+    //         let listener =  Callback::from(move |event: Event| {
+    //             let select = event
+    //                 .target()
+    //                 .unwrap()
+    //                 .unchecked_into::<HtmlSelectElement>();
+    //         });
+
+    //         select.add_event_listener_with_callback("onchange", listener);
+    //     },
+    //     props.selected,
+    // );
+
     html! {
-        <select class="p-4 rounded-lg bg-slate-200" autocomplete="off" ref={select_ref} onchange={handle_on_change} value={props.selected.to_string()}>
+        <select class="p-4 rounded-lg bg-slate-200" autocomplete="off" ref={select_ref} onchange={handle_on_change}>
             {options}
         </select>
     }

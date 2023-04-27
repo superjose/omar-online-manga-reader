@@ -50,6 +50,7 @@ pub fn manga_dropdown() -> Html {
                 options={options}
                 selected={chapter}
                 onchange={handle_chapter_change}
+                options_reversed={true}
             />
             <Dropdown
                 options={pages_options}
