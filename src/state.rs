@@ -12,6 +12,8 @@ extern crate web_sys;
 pub enum MangaAction {
     Prev,
     Next,
+    PrevChapter,
+    NextChapter,
     ChangeChapter(i16),
     ChangePage(i16),
 }
@@ -66,15 +68,18 @@ impl Reducible for MangaState {
             MangaAction::Next => {
                 let mut new_page = self.page + 1;
                 let mut chapter = self.chapter;
+                let mut total_pages = self.total_pages;
 
                 if new_page > self.total_pages && chapter < self.total_chapters {
                     chapter = self.chapter + 1;
                     new_page = 1;
+                    total_pages = *self.chapter_state.get(&chapter).unwrap_or(&1);
                 }
 
                 Self {
                     page: min(new_page, self.total_pages),
                     chapter,
+                    total_pages,
                     ..(*self).clone()
                 }
             }
@@ -85,6 +90,28 @@ impl Reducible for MangaState {
                 Self {
                     page: 1,
                     chapter,
+                    total_pages: *total_pages,
+                    ..(*self).clone()
+                }
+                .into()
+            }
+            MangaAction::NextChapter => {
+                let next_chapter = max(self.chapter + 1, self.total_chapters);
+                let total_pages = self.chapter_state.get(&next_chapter).unwrap_or(&1);
+                Self {
+                    page: 1,
+                    chapter: next_chapter,
+                    total_pages: *total_pages,
+                    ..(*self).clone()
+                }
+                .into()
+            }
+            MangaAction::PrevChapter => {
+                let prev_chapter = max(self.chapter - 1, 1);
+                let total_pages = self.chapter_state.get(&prev_chapter).unwrap_or(&1);
+                Self {
+                    page: 1,
+                    chapter: prev_chapter,
                     total_pages: *total_pages,
                     ..(*self).clone()
                 }

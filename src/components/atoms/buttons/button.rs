@@ -8,15 +8,32 @@ pub struct ButtonProps {
     pub children: Children,
     #[prop_or_default]
     pub disabled: bool,
+    #[prop_or_default]
+    pub class: String,
+}
+
+impl ButtonProps {
+    fn to_disable(&self) -> String {
+        if self.disabled {
+            // I'll add these to tailwind safelist.
+            "bg-slate-200".to_string()
+        } else {
+            "bg-cyan-500".to_string()
+        }
+    }
 }
 
 #[function_component(Button)]
 pub fn button(props: &ButtonProps) -> Html {
     let on_click = props.on_click.clone();
-
+    let class = format!(
+        "p-2 py-3 q px-5 rounded-lg  {} {}",
+        props.class,
+        props.to_disable()
+    );
     html! {
         <button
-            class="p-2 bg-cyan-500  text-white py-3 px-5 rounded-lg"
+            class={class}
             onclick={move |e: MouseEvent| on_click.emit(e)}
             disabled={props.disabled}
             >

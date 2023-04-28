@@ -10,4 +10,5 @@ module.exports = {
   theme: {},
   variants: {},
   plugins: [],
+  safelist: ["bg-slate-200", "bg-cyan-500"],
 };

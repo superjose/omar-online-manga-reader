@@ -5,7 +5,6 @@ use yew::prelude::*;
 #[derive(PartialEq, Clone)]
 pub enum SelectOptionValue {
     Int(i16),
-    // String(String),
 }
 
 #[derive(PartialEq)]
@@ -67,26 +66,29 @@ pub fn dropdown(props: &DropdownProps) -> Html {
             props_on_change.emit(value_to_emit);
         })
     };
+    {
+        let cloned_ref = select_ref.clone();
+        let options_reversed = props.options_reversed.clone();
+        let selected = props.selected.clone();
+        // TODO
+        use_effect_with_deps(
+            move |_| {
+                let select = cloned_ref
+                    .cast::<HtmlSelectElement>()
+                    .expect("select_ref not set");
+                let length = select.length() as i16;
 
-    // TODO
-    // use_effect_with_deps(
-    //     move |_| {
-    //         let select = select_ref
-    //             .cast::<HtmlSelectElement>()
-    //             .expect("select_ref not set");
+                let selected_index = if options_reversed {
+                    length - selected
+                } else {
+                    selected - 1
+                };
 
-    //         let listener =  Callback::from(move |event: Event| {
-    //             let select = event
-    //                 .target()
-    //                 .unwrap()
-    //                 .unchecked_into::<HtmlSelectElement>();
-    //         });
-
-    //         select.add_event_listener_with_callback("onchange", listener);
-    //     },
-    //     props.selected,
-    // );
-
+                select.set_selected_index(selected_index.into());
+            },
+            props.selected,
+        );
+    }
     html! {
         <select class="p-4 rounded-lg bg-slate-200" autocomplete="off" ref={select_ref} onchange={handle_on_change}>
             {options}

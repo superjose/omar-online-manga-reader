@@ -1,4 +1,4 @@
-use crate::components::molecules::icon_button::icon_button::{Icon, IconButton};
+use crate::components::molecules::icon_button::icon_button::{Color, Icon, IconButton};
 
 use super::components::molecules::dropdowns::manga_dropdown::MangaDropdown;
 use yew::prelude::*;
@@ -11,6 +11,25 @@ use super::state::{use_manga_context, MangaAction};
 #[function_component(Navbar)]
 pub fn navbar() -> Html {
     let state = use_manga_context().unwrap();
+
+    let go_next_page_disabled = &state.page == &state.total_pages;
+    let go_next_chapter_disabled = &state.chapter == &state.total_chapters;
+    let prev_page_disabled = &state.page == &1;
+    let prev_chapter_disabled = &state.chapter == &1;
+
+    let go_prev_chapter = {
+        let state = state.clone();
+        Callback::from(move |_| {
+            state.dispatch(MangaAction::PrevChapter);
+        })
+    };
+
+    let go_next_chapter = {
+        let state = state.clone();
+        Callback::from(move |_| {
+            state.dispatch(MangaAction::NextChapter);
+        })
+    };
 
     let go_prev = {
         let state = state.clone();
@@ -52,11 +71,57 @@ pub fn navbar() -> Html {
         }
     });
 
+    // This will be improved in future versions, when we decompose the svg
+    // into its own component which we can pass the classes to.
+    let go_prev_chapter_icon = if prev_chapter_disabled {
+        Icon::DoubleLeftArrow(Color::Black)
+    } else {
+        Icon::DoubleLeftArrow(Color::White)
+    };
+
+    let go_prev_page_icon = if prev_page_disabled {
+        Icon::LeftArrow(Color::Black)
+    } else {
+        Icon::LeftArrow(Color::White)
+    };
+
+    let go_next_page_icon = if go_next_page_disabled {
+        Icon::RightArrow(Color::Black)
+    } else {
+        Icon::RightArrow(Color::White)
+    };
+
+    let go_next_chapter_icon = if go_next_chapter_disabled {
+        Icon::DoubleRightArrow(Color::Black)
+    } else {
+        Icon::DoubleRightArrow(Color::White)
+    };
+
     html! {
         <section class="mt-6 mb-6 flex justify-around">
-            <IconButton on_click={go_prev} icon={Icon::LeftArrow} />
-            <form name="manga_dropdown" autocomplete="off"><MangaDropdown /></form>
-            <IconButton on_click={go_next} icon={Icon::RightArrow}/>
+            <IconButton
+                class="hidden sm:block"
+                on_click={go_prev_chapter}
+                icon={go_prev_chapter_icon}
+                disabled={prev_chapter_disabled}
+            />
+            <IconButton
+                on_click={go_prev}
+                icon={go_prev_page_icon}
+                disabled={prev_page_disabled}
+            />
+            <MangaDropdown />
+            <IconButton
+                on_click={go_next}
+                icon={go_next_page_icon}
+                disabled={go_next_page_disabled}
+                />
+            <IconButton
+                class="hidden sm:block"
+                on_click={go_next_chapter}
+                icon={go_next_chapter_icon}
+                disabled={go_next_chapter_disabled}
+                />
 
         </section>
     }
