@@ -4,6 +4,7 @@ mod generated;
 mod manga;
 mod navbar;
 mod states;
+mod utils;
 
 use components::atoms::container::Container;
 use manga::manga::Manga;

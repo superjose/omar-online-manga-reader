@@ -547,12 +547,36 @@ video {
   }
 }
 
+.absolute {
+  position: absolute;
+}
+
 .sticky {
   position: sticky;
 }
 
 .top-0 {
   top: 0px;
+}
+
+.right-0 {
+  right: 0px;
+}
+
+.right-2 {
+  right: 0.5rem;
+}
+
+.top-3 {
+  top: 0.75rem;
+}
+
+.right-3 {
+  right: 0.75rem;
+}
+
+.top-2 {
+  top: 0.5rem;
 }
 
 .my-0 {
@@ -588,6 +612,10 @@ video {
 
 .w-full {
   width: 100%;
+}
+
+.justify-end {
+  justify-content: flex-end;
 }
 
 .justify-around {

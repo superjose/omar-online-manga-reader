@@ -1,6 +1,8 @@
 use crate::components::{
-    atoms::buttons::button::ButtonVariant,
-    molecules::icon_button::icon_button::{Color, Icon, IconButton},
+    atoms::icon::Icon,
+    molecules::{
+        dropdowns::settings_dropdown::SettingsDropdown, icon_button::icon_button::IconButton,
+    },
 };
 
 use super::components::molecules::dropdowns::manga_dropdown::MangaDropdown;
@@ -74,77 +76,35 @@ pub fn navbar() -> Html {
         }
     });
 
-    // This will be improved in future versions, when we decompose the svg
-    // into its own component which we can pass the classes to.
-    let icon_win = window().expect_throw("window is undefined");
-    let is_dark = icon_win
-        .match_media("(prefers-color-scheme: dark)")
-        .unwrap_throw()
-        .unwrap()
-        .matches();
-
-    let go_prev_chapter_icon =
-        Icon::DoubleLeftArrow(get_icon_color(&prev_chapter_disabled, &is_dark));
-
-    let go_prev_page_icon = Icon::LeftArrow(get_icon_color(&prev_chapter_disabled, &is_dark));
-
-    let go_next_page_icon = Icon::RightArrow(get_icon_color(&prev_chapter_disabled, &is_dark));
-
-    let go_next_chapter_icon =
-        Icon::DoubleRightArrow(get_icon_color(&prev_chapter_disabled, &is_dark));
-
-    let settings_icon = Icon::Settings(get_color(&is_dark));
-
     html! {
+        <>
         <section class="mt-6 mb-6 flex justify-around sticky top-0 dark:bg-darkness-primary bg-white py-4">
             <IconButton
                 class="hidden sm:block"
                 on_click={go_prev_chapter}
-                icon={go_prev_chapter_icon}
+                icon={Icon::DoubleLeftArrow}
                 disabled={prev_chapter_disabled}
             />
             <IconButton
                 on_click={go_prev}
-                icon={go_prev_page_icon}
+                icon={Icon::LeftArrow}
                 disabled={prev_page_disabled}
             />
             <MangaDropdown />
             <IconButton
                 on_click={go_next}
-                icon={go_next_page_icon}
+                icon={Icon::RightArrow}
                 disabled={go_next_page_disabled}
                 />
             <IconButton
                 class="hidden sm:block"
                 on_click={go_next_chapter}
-                icon={go_next_chapter_icon}
+                icon={Icon::DoubleRightArrow}
                 disabled={go_next_chapter_disabled}
                 />
-            <IconButton
-                icon={settings_icon}
-                variant={ButtonVariant::Secondary}
-            />
+
         </section>
-    }
-}
-
-fn get_icon_color(is_disabled: &bool, is_dark: &bool) -> Color {
-    match is_disabled {
-        true => match is_dark {
-            true => return Color::Black,
-            false => return Color::White,
-        },
-
-        false => match is_dark {
-            true => return Color::White,
-            false => return Color::Black,
-        },
-    }
-}
-
-fn get_color(is_dark: &bool) -> Color {
-    match is_dark {
-        true => return Color::White,
-        false => return Color::Black,
+             <SettingsDropdown />
+        </>
     }
 }
