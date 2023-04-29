@@ -73,29 +73,22 @@ pub fn navbar() -> Html {
 
     // This will be improved in future versions, when we decompose the svg
     // into its own component which we can pass the classes to.
-    let go_prev_chapter_icon = if prev_chapter_disabled {
-        Icon::DoubleLeftArrow(Color::Black)
-    } else {
-        Icon::DoubleLeftArrow(Color::White)
-    };
+    let icon_win = window().expect_throw("window is undefined");
+    let is_dark = icon_win
+        .match_media("(prefers-color-scheme: dark)")
+        .unwrap_throw()
+        .unwrap()
+        .matches();
 
-    let go_prev_page_icon = if prev_page_disabled {
-        Icon::LeftArrow(Color::Black)
-    } else {
-        Icon::LeftArrow(Color::White)
-    };
+    let go_prev_chapter_icon =
+        Icon::DoubleLeftArrow(get_icon_color(&prev_chapter_disabled, &is_dark));
 
-    let go_next_page_icon = if go_next_page_disabled {
-        Icon::RightArrow(Color::Black)
-    } else {
-        Icon::RightArrow(Color::White)
-    };
+    let go_prev_page_icon = Icon::LeftArrow(get_icon_color(&prev_chapter_disabled, &is_dark));
 
-    let go_next_chapter_icon = if go_next_chapter_disabled {
-        Icon::DoubleRightArrow(Color::Black)
-    } else {
-        Icon::DoubleRightArrow(Color::White)
-    };
+    let go_next_page_icon = Icon::RightArrow(get_icon_color(&prev_chapter_disabled, &is_dark));
+
+    let go_next_chapter_icon =
+        Icon::DoubleRightArrow(get_icon_color(&prev_chapter_disabled, &is_dark));
 
     html! {
         <section class="mt-6 mb-6 flex justify-around">
@@ -124,5 +117,19 @@ pub fn navbar() -> Html {
                 />
 
         </section>
+    }
+}
+
+fn get_icon_color(is_disabled: &bool, is_dark: &bool) -> Color {
+    match is_disabled {
+        true => match is_dark {
+            true => return Color::Black,
+            false => return Color::White,
+        },
+
+        false => match is_dark {
+            true => return Color::White,
+            false => return Color::Black,
+        },
     }
 }

@@ -16,7 +16,7 @@ impl ButtonProps {
     fn to_disable(&self) -> String {
         if self.disabled {
             // I'll add these to tailwind safelist.
-            "bg-slate-200".to_string()
+            "bg-slate-200 dark:bg-darkness-disabled".to_string()
         } else {
             "bg-cyan-500".to_string()
         }

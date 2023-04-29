@@ -90,7 +90,7 @@ pub fn dropdown(props: &DropdownProps) -> Html {
         );
     }
     html! {
-        <select class="p-4 rounded-lg bg-slate-200" autocomplete="off" ref={select_ref} onchange={handle_on_change}>
+        <select class="p-4 rounded-lg bg-slate-200 dark:bg-darkness" autocomplete="off" ref={select_ref} onchange={handle_on_change}>
             {options}
         </select>
     }
