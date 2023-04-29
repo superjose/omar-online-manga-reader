@@ -1,5 +1,5 @@
 use crate::generated::chapter_map::get_chapters;
-use gloo::utils::window;
+
 use std::{
     cmp::{max, min},
     collections::HashMap,
@@ -34,6 +34,13 @@ pub enum MangaAction {
     NextChapter,
     ChangeChapter(i16),
     ChangePage(i16),
+    ChangePageManually(i16),
+    SetChangedBy(ChangedBy),
+}
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub enum ChangedBy {
+    Navigation,
+    Manually,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -44,6 +51,7 @@ pub struct MangaState {
     pub total_chapters: i16,
     pub chapter: i16,
     pub manga: MangaBook,
+    pub changed_by: ChangedBy,
 }
 
 pub type MangaContext = UseReducerHandle<MangaState>;
@@ -63,6 +71,7 @@ impl Default for MangaState {
             total_pages,
             total_chapters,
             manga: MangaBook::OnePiece,
+            changed_by: ChangedBy::Navigation,
         }
     }
 }
@@ -72,12 +81,13 @@ impl Reducible for MangaState {
     type Action = MangaAction;
 
     fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
-        let win = window();
-        win.scroll_to_with_x_and_y(0.0, 0.0);
         match action {
-            MangaAction::Prev => Self {
-                page: max(self.page - 1, 1),
-                ..(*self).clone()
+            MangaAction::Prev => {
+                Self {
+                    page: max(self.page - 1, 1),
+                    changed_by: ChangedBy::Navigation,
+                    ..(*self).clone()
+                }
             }
             .into(),
             MangaAction::Next => {
@@ -95,6 +105,7 @@ impl Reducible for MangaState {
                     page: min(new_page, self.total_pages),
                     chapter,
                     total_pages,
+                    changed_by: ChangedBy::Navigation,
                     ..(*self).clone()
                 }
             }
@@ -106,6 +117,7 @@ impl Reducible for MangaState {
                     page: 1,
                     chapter,
                     total_pages: *total_pages,
+                    changed_by: ChangedBy::Navigation,
                     ..(*self).clone()
                 }
                 .into()
@@ -117,6 +129,7 @@ impl Reducible for MangaState {
                     page: 1,
                     chapter: next_chapter,
                     total_pages: *total_pages,
+                    changed_by: ChangedBy::Navigation,
                     ..(*self).clone()
                 }
                 .into()
@@ -124,17 +137,37 @@ impl Reducible for MangaState {
             MangaAction::PrevChapter => {
                 let prev_chapter = max(self.chapter - 1, 1);
                 let total_pages = self.chapter_state.get(&prev_chapter).unwrap_or(&1);
+
                 Self {
                     page: 1,
                     chapter: prev_chapter,
                     total_pages: *total_pages,
+                    changed_by: ChangedBy::Navigation,
                     ..(*self).clone()
                 }
                 .into()
             }
-            MangaAction::ChangePage(page) => Self {
-                page: i8::try_from(page).unwrap(),
+            MangaAction::ChangePage(page) => {
+                Self {
+                    page: i8::try_from(page).unwrap(),
+                    changed_by: ChangedBy::Navigation,
+                    ..(*self).clone()
+                }
+            }
+            .into(),
+            MangaAction::SetChangedBy(changed_by) => Self {
+                changed_by,
                 ..(*self).clone()
+            }
+            .into(),
+            MangaAction::ChangePageManually(page) => {
+                let new_page = i8::try_from(page).unwrap();
+
+                Self {
+                    page: new_page,
+                    changed_by: ChangedBy::Manually,
+                    ..(*self).clone()
+                }
             }
             .into(),
         }

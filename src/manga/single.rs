@@ -1,13 +1,8 @@
 use wasm_bindgen::{prelude::Closure, JsCast};
-use web_sys::HtmlImageElement;
+use web_sys::{window, HtmlImageElement};
 use yew::prelude::*;
 
 use crate::states::state::{use_manga_context, MangaAction};
-
-// #[derive(PartialEq, Props)]
-// pub struct MangaProps<'a> {
-//     page_state: &'a UseState<i32>,
-// }
 
 #[function_component(SingleManga)]
 pub fn single_manga() -> Html {
@@ -44,9 +39,17 @@ pub fn single_manga() -> Html {
             }
         });
     }
-
+    {
+        use_effect_with_deps(
+            move |_| {
+                window().unwrap().scroll_to_with_x_and_y(0.0, 0.0);
+            },
+            page,
+        );
+    }
     html! {
         <div class="p-4 md:p-0">
+            <a href={format!("#{}",&page)} />
             <img class="my-0 mx-auto" src={url} alt="manga" ref={img_ref} />
             <p class="text-center">{"Press Arrow Keys to move backwards and forward."}</p>
             <p class="text-center">{"Press the image to move forward."}</p>
