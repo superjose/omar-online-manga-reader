@@ -1,4 +1,4 @@
-use crate::components::atoms::buttons::button::Button;
+use crate::components::atoms::buttons::button::{Button, ButtonVariant};
 use yew::prelude::*;
 
 const BASE_ASSET_URL: &str = "/assets/icons";
@@ -30,6 +30,7 @@ pub enum Icon {
     RightArrow(Color),
     DoubleLeftArrow(Color),
     DoubleRightArrow(Color),
+    Settings(Color),
 }
 
 impl Icon {
@@ -39,6 +40,7 @@ impl Icon {
             Icon::RightArrow(color) => color.to_color("chevron-right"),
             Icon::DoubleLeftArrow(color) => color.to_color("chevron-double-left"),
             Icon::DoubleRightArrow(color) => color.to_color("chevron-double-right"),
+            Icon::Settings(color) => color.to_color("settings"),
         }
     }
 }
@@ -54,12 +56,19 @@ pub struct IconButtonProps {
     pub disabled: bool,
     #[prop_or_default]
     pub class: String,
+    #[prop_or_default]
+    pub variant: ButtonVariant,
 }
 
 #[function_component(IconButton)]
 pub fn icon_button(props: &IconButtonProps) -> Html {
     html! {
-        <Button class={props.class.clone()} on_click={&props.on_click} disabled={&props.disabled}>
+        <Button
+            class={props.class.clone()}
+            on_click={&props.on_click}
+            disabled={&props.disabled}
+            variant={props.variant.clone()}
+            >
             <>
             <img src={props.icon.to_icon_path()} alt={"icon"} />
                 {for props.children.iter()}

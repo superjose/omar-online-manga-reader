@@ -1,4 +1,7 @@
-use crate::components::molecules::icon_button::icon_button::{Color, Icon, IconButton};
+use crate::components::{
+    atoms::buttons::button::ButtonVariant,
+    molecules::icon_button::icon_button::{Color, Icon, IconButton},
+};
 
 use super::components::molecules::dropdowns::manga_dropdown::MangaDropdown;
 use yew::prelude::*;
@@ -90,8 +93,10 @@ pub fn navbar() -> Html {
     let go_next_chapter_icon =
         Icon::DoubleRightArrow(get_icon_color(&prev_chapter_disabled, &is_dark));
 
+    let settings_icon = Icon::Settings(get_color(&is_dark));
+
     html! {
-        <section class="mt-6 mb-6 flex justify-around">
+        <section class="mt-6 mb-6 flex justify-around sticky top-0 dark:bg-darkness-primary bg-white py-4">
             <IconButton
                 class="hidden sm:block"
                 on_click={go_prev_chapter}
@@ -115,7 +120,10 @@ pub fn navbar() -> Html {
                 icon={go_next_chapter_icon}
                 disabled={go_next_chapter_disabled}
                 />
-
+            <IconButton
+                icon={settings_icon}
+                variant={ButtonVariant::Secondary}
+            />
         </section>
     }
 }
@@ -131,5 +139,12 @@ fn get_icon_color(is_disabled: &bool, is_dark: &bool) -> Color {
             true => return Color::White,
             false => return Color::Black,
         },
+    }
+}
+
+fn get_color(is_dark: &bool) -> Color {
+    match is_dark {
+        true => return Color::White,
+        false => return Color::Black,
     }
 }
