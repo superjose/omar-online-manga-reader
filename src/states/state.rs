@@ -9,6 +9,24 @@ use yew::prelude::*;
 
 extern crate web_sys;
 
+#[derive(Debug, PartialEq, Eq, Clone)]
+pub enum MangaBook {
+    OnePiece,
+}
+
+impl MangaBook {
+    pub fn to_url(&self, chapter: &i16, page: &i8) -> String {
+        let manga_base = match self {
+            MangaBook::OnePiece => "one_piece".to_owned(),
+        };
+        let prepend = if page < &10 { "0" } else { "" };
+        format!(
+            "/assets/manga/{}/{}/{}{}.jpg",
+            manga_base, chapter, prepend, page
+        )
+    }
+}
+
 pub enum MangaAction {
     Prev,
     Next,
@@ -25,6 +43,7 @@ pub struct MangaState {
     pub total_pages: i8,
     pub total_chapters: i16,
     pub chapter: i16,
+    pub manga: MangaBook,
 }
 
 pub type MangaContext = UseReducerHandle<MangaState>;
@@ -43,6 +62,7 @@ impl Default for MangaState {
             chapter,
             total_pages,
             total_chapters,
+            manga: MangaBook::OnePiece,
         }
     }
 }

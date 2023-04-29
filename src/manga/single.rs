@@ -14,16 +14,10 @@ pub fn single_manga() -> Html {
     let state = use_manga_context().unwrap();
     let img_ref = use_node_ref();
     // let page = cx.props.page_state;
-    let chapter = state.chapter.to_owned();
-    let page = state.page.to_owned();
+    let chapter = state.chapter;
+    let page = state.page;
 
-    let prepend = if &page < &10 { "0" } else { "" };
-
-    // let url = format!("/assets/manga/one_piece/1042/{}{}.jpg", prepend, &page);
-    let url = format!(
-        "/assets/manga/one_piece/{}/{}{}.jpg",
-        chapter, prepend, page
-    );
+    let url = state.manga.to_url(&chapter, &page);
 
     {
         let img = img_ref.clone();
