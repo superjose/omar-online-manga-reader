@@ -1,7 +1,7 @@
 // This will be improved in future versions, when we decompose the svg
 // into its own component which we can pass the classes to.
 
-use crate::utils::utils::Color;
+use crate::utils::utils::{Align, Color};
 use wasm_bindgen::UnwrapThrowExt;
 use web_sys::window;
 use yew::prelude::*;
@@ -43,6 +43,8 @@ pub enum Icon {
     DoubleLeftArrow,
     DoubleRightArrow,
     Settings,
+    Scroll,
+    Page,
 }
 
 impl Icon {
@@ -54,6 +56,8 @@ impl Icon {
             Icon::DoubleLeftArrow => map_color("chevron-double-left"),
             Icon::DoubleRightArrow => map_color("chevron-double-right"),
             Icon::Settings => map_color("settings"),
+            Icon::Scroll => map_color("scroll"),
+            Icon::Page => map_color("page"),
         }
     }
 }
@@ -63,6 +67,8 @@ pub struct IconProps {
     pub icon: Icon,
     #[prop_or_default]
     pub class: String,
+    #[prop_or(Align::Left)]
+    pub align: Align,
 }
 
 #[function_component(IconElem)]
@@ -73,7 +79,8 @@ pub fn icon(props: &IconProps) -> Html {
         .unwrap_throw()
         .unwrap()
         .matches();
+    let class = format!("{} {}", props.align.to_class(), props.class.clone());
     html! {
-        <img src={props.icon.to_icon_path(&is_dark, &false)} class={props.class.clone()} alt={"icon"} />
+        <img width="24" src={props.icon.to_icon_path(&is_dark, &false)} class={class} alt={"icon"} />
     }
 }

@@ -16,7 +16,7 @@ impl ButtonVariant {
     fn to_class(&self) -> String {
         match self {
             ButtonVariant::Primary => "bg-cyan-500",
-            ButtonVariant::Secondary => "bg-slate-200 dark:bg-darkness-disabled",
+            ButtonVariant::Secondary => "bg-slate-200 dark:bg-darkness-secondary",
         }
         .to_string()
     }
@@ -28,7 +28,7 @@ pub struct ButtonProps {
     pub on_click: Callback<MouseEvent>,
     #[prop_or_default]
     pub children: Children,
-    #[prop_or_default]
+    #[prop_or(false)]
     pub disabled: bool,
     #[prop_or_default]
     pub class: String,
@@ -56,6 +56,7 @@ pub fn button(props: &ButtonProps) -> Html {
         props.class,
         props.to_disable()
     );
+
     html! {
         <button
             class={class}

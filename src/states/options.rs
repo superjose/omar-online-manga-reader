@@ -8,8 +8,9 @@ pub enum ReadingMode {
     Scroller,
 }
 
-pub enum MangaOptionsActions {
+pub enum MangaOptionsAction {
     SetReadingMode(ReadingMode),
+    ToggleScrollView,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -28,12 +29,20 @@ impl Default for MangaOptionsState {
 }
 
 impl Reducible for MangaOptionsState {
-    type Action = MangaOptionsActions;
+    type Action = MangaOptionsAction;
 
     fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
         match action {
-            MangaOptionsActions::SetReadingMode(reading_mode) => Self {
+            MangaOptionsAction::SetReadingMode(reading_mode) => Self {
                 reading_mode,
+                ..(*self).clone()
+            }
+            .into(),
+            MangaOptionsAction::ToggleScrollView => Self {
+                reading_mode: match self.reading_mode {
+                    ReadingMode::Page => ReadingMode::Scroller,
+                    ReadingMode::Scroller => ReadingMode::Page,
+                },
                 ..(*self).clone()
             }
             .into(),

@@ -9,7 +9,7 @@ mod utils;
 use components::atoms::container::Container;
 use manga::manga::Manga;
 use navbar::Navbar;
-use states::state::MangaContextProvider;
+use states::{options::MangaOptionsContextProvider, state::MangaContextProvider};
 
 /**
  * Specify <link data-trunk rel="copy-dir" href="src/assets" />
@@ -22,12 +22,14 @@ use states::state::MangaContextProvider;
 fn app() -> Html {
     wasm_logger::init(wasm_logger::Config::default());
     html! {
-        <MangaContextProvider>
-           <Container>
-                <Navbar />
-                <Manga />
-           </Container>
-        </MangaContextProvider>
+        <MangaOptionsContextProvider>
+            <MangaContextProvider>
+                <Container>
+                        <Navbar />
+                        <Manga />
+                </Container>
+            </MangaContextProvider>
+        </MangaOptionsContextProvider>
     }
 }
 

@@ -1,6 +1,9 @@
-use crate::components::atoms::{
-    buttons::button::{Button, ButtonVariant},
-    icon::{Icon, IconElem},
+use crate::{
+    components::atoms::{
+        buttons::button::{Button, ButtonVariant},
+        icon::{Icon, IconElem},
+    },
+    utils::utils::Align,
 };
 use yew::prelude::*;
 
@@ -9,9 +12,11 @@ pub struct IconButtonProps {
     #[prop_or(Callback::noop())]
     pub on_click: Callback<MouseEvent>,
     pub icon: Icon,
+    #[prop_or(Align::Center)]
+    pub icon_align: Align,
     #[prop_or_default]
     pub children: Children,
-    #[prop_or_default]
+    #[prop_or(false)]
     pub disabled: bool,
     #[prop_or_default]
     pub class: String,
@@ -29,7 +34,9 @@ pub fn icon_button(props: &IconButtonProps) -> Html {
             variant={props.variant.clone()}
             >
             <>
-            <IconElem icon={props.icon.clone()}/>
+            <IconElem
+                align={props.icon_align.clone()}
+                icon={props.icon.clone()}/>
                 {for props.children.iter()}
             </>
         </Button>
