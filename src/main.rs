@@ -1,14 +1,14 @@
 use yew::prelude::*;
-mod chapter_map;
 mod components;
+mod generated;
 mod manga;
 mod navbar;
-mod state;
+mod states;
 
 use components::atoms::container::Container;
-use manga::Manga;
+use manga::manga::Manga;
 use navbar::Navbar;
-use state::MangaContextProvider;
+use states::state::MangaContextProvider;
 
 /**
  * Specify <link data-trunk rel="copy-dir" href="src/assets" />

@@ -2,17 +2,15 @@ use wasm_bindgen::{prelude::Closure, JsCast};
 use web_sys::HtmlImageElement;
 use yew::prelude::*;
 
-use crate::state::MangaAction;
-
-use super::state::use_manga_context;
+use crate::states::state::{use_manga_context, MangaAction};
 
 // #[derive(PartialEq, Props)]
 // pub struct MangaProps<'a> {
 //     page_state: &'a UseState<i32>,
 // }
 
-#[function_component(Manga)]
-pub fn manga() -> Html {
+#[function_component(SingleManga)]
+pub fn single_manga() -> Html {
     let state = use_manga_context().unwrap();
     let img_ref = use_node_ref();
     // let page = cx.props.page_state;

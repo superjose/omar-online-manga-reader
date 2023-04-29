@@ -67,6 +67,6 @@ fn main() {
         chapter_concat
     );
 
-    let dest_path = format!("{}/chapter_map.rs", out_dir);
+    let dest_path = format!("{}/generated/chapter_map.rs", out_dir);
     fs::write(&dest_path, chapter_map_rs).unwrap();
 }

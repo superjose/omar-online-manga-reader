@@ -6,7 +6,7 @@ use yew::prelude::*;
 use wasm_bindgen::{prelude::Closure, JsCast, UnwrapThrowExt};
 use web_sys::window;
 
-use super::state::{use_manga_context, MangaAction};
+use super::states::state::{use_manga_context, MangaAction};
 
 #[function_component(Navbar)]
 pub fn navbar() -> Html {

@@ -1,4 +1,4 @@
-use super::chapter_map::get_chapters;
+use crate::generated::chapter_map::get_chapters;
 use gloo::utils::window;
 use std::{
     cmp::{max, min},
@@ -36,12 +36,7 @@ impl Default for MangaState {
         let chapter = chapter_state.keys().max().unwrap().to_owned();
         let total_chapters = chapter.clone();
         let total_pages = chapter_state.get(&chapter).unwrap().to_owned();
-        // let dir = "./assets/manga/one_piece";
-        // let total_chapters = fs::read_dir(dir)
-        //     .unwrap()
-        //     .filter(|entry| entry.as_ref().unwrap().metadata().unwrap().is_file())
-        //     .count();
-        // log!("TOTAL CHAPTERS {}", total_chapters);
+
         Self {
             chapter_state,
             page: 1,
