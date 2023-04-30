@@ -26,7 +26,7 @@ pub fn intersection_image(props: &IntersectionImageProps) -> Html {
         let changed_by = state.changed_by.clone();
         use_effect(move || {
             let mut options = IntersectionObserverInit::new();
-            options.threshold(&JsValue::from(0.5));
+            options.threshold(&JsValue::from(0.7));
 
             let img = img.cast::<HtmlImageElement>().expect("image not set");
             let callback = Closure::wrap(Box::new(

@@ -45,6 +45,8 @@ pub enum Icon {
     Settings,
     Scroll,
     Page,
+    Grid,
+    Book,
 }
 
 impl Icon {
@@ -58,6 +60,8 @@ impl Icon {
             Icon::Settings => map_color("settings"),
             Icon::Scroll => map_color("scroll"),
             Icon::Page => map_color("page"),
+            Icon::Grid => map_color("grid"),
+            Icon::Book => map_color("book"),
         }
     }
 }

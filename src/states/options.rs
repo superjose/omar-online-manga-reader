@@ -6,11 +6,12 @@ use yew::prelude::*;
 pub enum ReadingMode {
     Page,
     Scroller,
+    GridPreview,
+    Book,
 }
 
 pub enum MangaOptionsAction {
     SetReadingMode(ReadingMode),
-    ToggleScrollView,
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -35,14 +36,6 @@ impl Reducible for MangaOptionsState {
         match action {
             MangaOptionsAction::SetReadingMode(reading_mode) => Self {
                 reading_mode,
-                ..(*self).clone()
-            }
-            .into(),
-            MangaOptionsAction::ToggleScrollView => Self {
-                reading_mode: match self.reading_mode {
-                    ReadingMode::Page => ReadingMode::Scroller,
-                    ReadingMode::Scroller => ReadingMode::Page,
-                },
                 ..(*self).clone()
             }
             .into(),

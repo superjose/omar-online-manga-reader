@@ -1,5 +1,5 @@
 use crate::{
-    manga::{scroller::Scroller, single::SingleManga},
+    manga::{book::Book, grid_preview::GridPreview, scroller::Scroller, single::SingleManga},
     states::options::{use_manga_options_context, ReadingMode},
 };
 use yew::prelude::*;
@@ -11,8 +11,17 @@ pub fn manga() -> Html {
     html! {
         if options_state.reading_mode == ReadingMode::Page {
             <SingleManga />
-        } else {
+        } else if options_state.reading_mode == ReadingMode::Scroller {
             <Scroller />
+        }
+        else if options_state.reading_mode == ReadingMode::GridPreview {
+            <GridPreview />
+        }
+        else if options_state.reading_mode == ReadingMode::Book {
+            <Book />
+        }
+        else {
+            <div>{"Hola 😊"}</div>
         }
     }
 }

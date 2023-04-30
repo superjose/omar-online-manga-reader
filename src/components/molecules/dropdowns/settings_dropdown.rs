@@ -14,15 +14,47 @@ use crate::{
 pub fn settings_dropdown() -> Html {
     let options_state = use_manga_options_context().unwrap();
 
-    let toggle_scroll_view = {
+    let set_page_view = {
         let options_state = options_state.clone();
         Callback::from(move |_| {
-            options_state.dispatch(MangaOptionsAction::ToggleScrollView);
+            options_state.dispatch(MangaOptionsAction::SetReadingMode(ReadingMode::Page));
+        })
+    };
+    let set_scroller_view = {
+        let options_state = options_state.clone();
+        Callback::from(move |_| {
+            options_state.dispatch(MangaOptionsAction::SetReadingMode(ReadingMode::Scroller));
         })
     };
 
+    let set_grid_preview = {
+        let options_state = options_state.clone();
+        Callback::from(move |_| {
+            options_state.dispatch(MangaOptionsAction::SetReadingMode(ReadingMode::GridPreview));
+        })
+    };
+    let set_book_mode = {
+        let options_state = options_state.clone();
+        Callback::from(move |_| {
+            options_state.dispatch(MangaOptionsAction::SetReadingMode(ReadingMode::Book));
+        })
+    };
+
+    let icon_text_block =
+        |reading_mode: ReadingMode, callback: Callback<MouseEvent>, icon: Icon, text: String| {
+            if reading_mode == options_state.reading_mode {
+                return html! {<></>};
+            }
+            html! {
+                <IconTextBlock
+                    on_click={callback}
+                    icon={icon}
+                    text={text} />
+            }
+        };
+
     html! {
-        <div class="fixed top-2 right-2 absolute [&>.dropdown-content]:hover:block
+        <div class="fixed top-2 right-2 [&>.dropdown-content]:hover:block
         [&>button]:hover:rounded-bl-none
         [&>button]:hover:rounded-br-none
             ">
@@ -41,23 +73,11 @@ pub fn settings_dropdown() -> Html {
                         
                         
             ">
-            {
-                if options_state.reading_mode == ReadingMode::Page {
-                    html! {
-                        <IconTextBlock
-                            on_click={toggle_scroll_view}
-                            icon={Icon::Scroll}
-                            text="Scroll View" />
-                    }
-                } else {
-                    html! {
-                        <IconTextBlock
-                            on_click={toggle_scroll_view}
-                            icon={Icon::Page}
-                            text="Page View" />
-                    }
-                }
-            }
+
+          {icon_text_block(ReadingMode::Scroller, set_scroller_view.clone(), Icon::Scroll, "Scroll View".to_string())}
+          {icon_text_block(ReadingMode::Page, set_page_view.clone(), Icon::Page, "Page View".to_string())}
+          {icon_text_block(ReadingMode::GridPreview, set_grid_preview.clone(), Icon::Grid, "Grid Preview".to_string())}
+          {icon_text_block(ReadingMode::Book, set_book_mode.clone(), Icon::Book, "Book Mode".to_string())}
 
             </div>
           </div>
