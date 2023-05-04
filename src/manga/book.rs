@@ -3,8 +3,8 @@ use yew::prelude::*;
 use crate::states::state::use_manga_context;
 
 struct BookPages {
-    leftPage: Option<String>,
-    rightPage: String,
+    left_page: Option<String>,
+    right_page: String,
 }
 
 #[function_component(Book)]
@@ -22,8 +22,8 @@ pub fn book() -> Html {
         };
 
         pages.push(BookPages {
-            leftPage: left_page,
-            rightPage: state.manga.to_url(&state.chapter, &i),
+            left_page: left_page,
+            right_page: state.manga.to_url(&state.chapter, &i),
         });
     }
 
@@ -32,7 +32,7 @@ pub fn book() -> Html {
             {pages.iter().map(|page| {
                 html! {
                     <div class="grid grid-cols-2">
-                        {if let Some(left_page) = &page.leftPage {
+                        {if let Some(left_page) = &page.left_page {
                             html! {
                                 <img src={left_page.clone()} />
                             }
@@ -40,7 +40,7 @@ pub fn book() -> Html {
                             html! {}
                         }}
 
-                        <img src={page.rightPage.clone()} />
+                        <img src={page.right_page.clone()} />
                     </div>
                 }
             }).collect::<Html>()}

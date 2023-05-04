@@ -1,16 +1,26 @@
 use std::{collections::HashMap, fs};
 
+pub struct ChapterState {
+    pub chapter: i16,
+    pub page: i8,
+    pub name: String,
+    pub ext: String,
+    pub is_dual: bool,
+}
+
+type MangaName = String;
+
 /**
  * Recreates a HashMap<i16, i8> that from the directory structure of the manga
  * that is consumed by the state.rs
  */
 fn main() {
-    println!("cargo:rerun-if-changed=build.rs");
+    println!("cargo:rerun-if-changed=src/assets/manga");
     let out_dir = "./src/";
 
-    let mut chapter_state: HashMap<i16, i8> = HashMap::new();
+    let mut chapter_state: HashMap<MangaName, HashMap<i16, Vec<ChapterState>>> = HashMap::new();
 
-    let dir_path = "./src/assets/manga/one_piece"; // replace with your directory path
+    let dir_path = "./src/assets/manga/"; // replace with your directory path
 
     let manga_folders = fs::read_dir(dir_path).expect("Failed to read directory");
 
@@ -24,6 +34,32 @@ fn main() {
             continue;
         }
 
+        let manga_name_option = entry.path().file_name().and_then(|n| n.to_str());
+        // This isn't possible https://stackoverflow.com/questions/49784874/what-is-the-rust-way-of-using-continue-from-inside-a-closure
+        // .map_or_else(|| continue, |name| name);
+
+        let manga_name = match manga_name_option {
+            None => continue,
+            Some(name) => name,
+        };
+
+        let manga_chapters_dir = dir_path.to_owned() + manga_name;
+        let err_msg = format!("Failed to read {}", manga_chapters_dir);
+        let chapters_folders = fs::read_dir(manga_chapters_dir).expect(&err_msg);
+
+        for chapter_folder in chapters_folders {
+            if let Some(folder_entry) = chapter_folder
+             && let Some(folder_name) = folder_entry
+                .path()
+                .file_name()
+                .and_then(|name| (name.to_str()))
+            && let Ok(chapter_number) = folder_name.parse::<i16>()
+                
+            {
+                
+            }
+        }
+
         if let Some(folder_name) = entry.path().file_name().and_then(|n| n.to_str()) {
             if let Ok(folder_num) = folder_name.parse::<i16>() {
                 let count = fs::read_dir(entry.path())
@@ -35,20 +71,20 @@ fn main() {
         }
     }
 
-    let mut sorted_manga_folders: Vec<(i16, i8)> = chapter_state.into_iter().collect();
-    sorted_manga_folders.sort_by_key(|&(chapter, _)| -chapter);
+    // let mut sorted_manga_folders: Vec<(i16, i8)> = chapter_state.into_iter().collect();
+    // sorted_manga_folders.sort_by_key(|&(chapter, _)| -chapter);
 
-    let mut chapter_concat: String = "[".to_owned();
-    for (index, (chapter, page)) in sorted_manga_folders.iter().enumerate() {
-        let comma_suffix = if index == sorted_manga_folders.len() - 1 {
-            ""
-        } else {
-            ","
-        };
-        chapter_concat.push_str(&format!("({}, {}){}", chapter, page, comma_suffix));
-    }
+    // let mut chapter_concat: String = "[".to_owned();
+    // for (index, (chapter, page)) in sorted_manga_folders.iter().enumerate() {
+    //     let comma_suffix = if index == sorted_manga_folders.len() - 1 {
+    //         ""
+    //     } else {
+    //         ","
+    //     };
+    //     chapter_concat.push_str(&format!("({}, {}){}", chapter, page, comma_suffix));
+    // }
 
-    chapter_concat.push_str("]");
+    // chapter_concat.push_str("]");
 
     println!("cargo:warning={:?}", &chapter_concat);
 

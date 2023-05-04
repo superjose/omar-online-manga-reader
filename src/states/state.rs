@@ -1,4 +1,7 @@
-use crate::generated::chapter_map::get_chapters;
+use crate::generated::{
+    back::{get_chapters_v2, ChapterState},
+    chapter_map::get_chapters,
+};
 
 use std::{
     cmp::{max, min},
@@ -21,7 +24,7 @@ impl MangaBook {
         };
         let prepend = if page < &10 { "0" } else { "" };
         format!(
-            "/assets/manga/{}/{}/{}{}.jpg",
+            "/assets/manga/{}/{}/{}{}.png",
             manga_base, chapter, prepend, page
         )
     }
@@ -46,7 +49,9 @@ pub enum ChangedBy {
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct MangaState {
     chapter_state: HashMap<i16, i8>,
+    chapter_state_v2: HashMap<i16, Vec<ChapterState>>,
     pub page: i8,
+    pub page_left: i8,
     pub total_pages: i8,
     pub total_chapters: i16,
     pub chapter: i16,
@@ -59,14 +64,16 @@ pub type MangaContext = UseReducerHandle<MangaState>;
 impl Default for MangaState {
     fn default() -> Self {
         let chapter_state = get_chapters();
-
+        let chapter_state_v2 = get_chapters_v2();
         let chapter = chapter_state.keys().max().unwrap().to_owned();
         let total_chapters = chapter.clone();
         let total_pages = chapter_state.get(&chapter).unwrap().to_owned();
 
         Self {
             chapter_state,
+            chapter_state_v2,
             page: 1,
+            page_left: 2,
             chapter,
             total_pages,
             total_chapters,
@@ -123,7 +130,7 @@ impl Reducible for MangaState {
                 .into()
             }
             MangaAction::NextChapter => {
-                let next_chapter = max(self.chapter + 1, self.total_chapters);
+                let next_chapter = min(self.chapter + 1, self.total_chapters);
                 let total_pages = self.chapter_state.get(&next_chapter).unwrap_or(&1);
                 Self {
                     page: 1,
