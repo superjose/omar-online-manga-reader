@@ -48,7 +48,7 @@ pub fn single_manga() -> Html {
         );
     }
     html! {
-        <div class="p-4 md:p-0">
+        <div class="">
             <a href={format!("#{}",&page)} />
             <img class="my-0 mx-auto" src={url} alt="manga" ref={img_ref} />
             <p class="text-center">{"Press Arrow Keys to move backwards and forward."}</p>
