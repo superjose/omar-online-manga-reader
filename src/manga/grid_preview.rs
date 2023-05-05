@@ -10,12 +10,7 @@ pub fn grid_preview() -> Html {
     let state = use_manga_context().unwrap();
     let options = use_manga_options_context().unwrap();
     let current_page = state.page;
-    let mut pages = Vec::<String>::new();
-    let chapter = state.chapter;
-    for i in 1..=state.total_pages {
-        let url = state.manga.to_url(&chapter, &i);
-        pages.push(url)
-    }
+    let mut pages = state.get_url_list_for_current_chapter();
 
     html! {
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 text-center

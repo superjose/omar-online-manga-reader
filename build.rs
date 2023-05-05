@@ -1,5 +1,7 @@
-use std::{collections::HashMap, fs};
+use image;
+use std::{collections::HashMap, fs, path::Path};
 
+#[derive(Debug)]
 pub struct ChapterState {
     pub chapter: i16,
     pub page: i8,
@@ -11,8 +13,7 @@ pub struct ChapterState {
 type MangaName = String;
 
 /**
- * Recreates a HashMap<i16, i8> that from the directory structure of the manga
- * that is consumed by the state.rs
+ * This will generate the entire manga reading structure so the state.rs file can consume it
  */
 fn main() {
     println!("cargo:rerun-if-changed=src/assets/manga");
@@ -30,11 +31,13 @@ fn main() {
             Ok(e) => e,
         };
 
-        if !entry.path().is_dir() {
+        let entry_path = entry.path();
+
+        if !entry_path.is_dir() {
             continue;
         }
 
-        let manga_name_option = entry.path().file_name().and_then(|n| n.to_str());
+        let manga_name_option = entry_path.file_name().and_then(|n| n.to_str());
         // This isn't possible https://stackoverflow.com/questions/49784874/what-is-the-rust-way-of-using-continue-from-inside-a-closure
         // .map_or_else(|| continue, |name| name);
 
@@ -46,63 +49,107 @@ fn main() {
         let manga_chapters_dir = dir_path.to_owned() + manga_name;
         let err_msg = format!("Failed to read {}", manga_chapters_dir);
         let chapters_folders = fs::read_dir(manga_chapters_dir).expect(&err_msg);
-
+        let mut chapter_folder_state: HashMap<i16, Vec<ChapterState>> = HashMap::new();
         for chapter_folder in chapters_folders {
-            if let Some(folder_entry) = chapter_folder
-             && let Some(folder_name) = folder_entry
-                .path()
-                .file_name()
-                .and_then(|name| (name.to_str()))
-            && let Ok(chapter_number) = folder_name.parse::<i16>()
-                
-            {
-                
+            // https://stackoverflow.com/questions/74966090/while-let-chain-causing-rust-analyzer-to-complain-about-the-feature-being-unstab
+            if let Ok(folder_entry) = chapter_folder {
+                if let Some(folder_name) = folder_entry
+                    .path()
+                    .file_name()
+                    .and_then(|name| (name.to_str()))
+                {
+                    if let Ok(chapter_number) = folder_name.parse::<i16>() {
+                        let chapter_path = folder_entry.path();
+                        let err_msg = format!("Failed to read {:?}", chapter_path);
+                        let pages = fs::read_dir(chapter_path).expect(&err_msg);
+
+                        let mut chapter_pages: Vec<ChapterState> = Vec::new();
+
+                        for (index, page) in pages.enumerate() {
+                            if let Ok(page_entry) = page {
+                                if let Some(page_name) = page_entry
+                                    .path()
+                                    .file_name()
+                                    .and_then(|name| (name.to_str()))
+                                {
+                                    let page_path = page_entry.path();
+                                    let err_msg = format!("Failed to read {:?}", page_path);
+                                    let page_extension = Path::new(page_name)
+                                        .extension()
+                                        .and_then(|ext| ext.to_str())
+                                        .unwrap_or("");
+                                    let image = image::open(page_path).expect(&err_msg);
+
+                                    let page_is_dual = image.width() >= image.height();
+
+                                    let chapter_state = ChapterState {
+                                        chapter: chapter_number,
+                                        page: i8::try_from(index + 1).unwrap(),
+                                        name: page_name.to_owned(),
+                                        ext: page_extension.to_owned(),
+                                        is_dual: page_is_dual,
+                                    };
+
+                                    chapter_pages.push(chapter_state);
+                                }
+                            }
+                        }
+                        chapter_folder_state.insert(chapter_number, chapter_pages);
+                    }
+                }
             }
         }
-
-        if let Some(folder_name) = entry.path().file_name().and_then(|n| n.to_str()) {
-            if let Ok(folder_num) = folder_name.parse::<i16>() {
-                let count = fs::read_dir(entry.path())
-                    .expect("Failed to read directory")
-                    .count() as i8;
-
-                chapter_state.insert(folder_num, count);
-            }
-        }
+        chapter_state.insert(manga_name.to_owned(), chapter_folder_state);
     }
 
-    // let mut sorted_manga_folders: Vec<(i16, i8)> = chapter_state.into_iter().collect();
-    // sorted_manga_folders.sort_by_key(|&(chapter, _)| -chapter);
+    // Generated using ChatGPT
+    // This will create the chapter_map.rs file
+    let mut code_template = format!("use std::collections::HashMap;\n");
+    code_template.push_str("use serde::{Deserialize, Serialize};\n\n");
 
-    // let mut chapter_concat: String = "[".to_owned();
-    // for (index, (chapter, page)) in sorted_manga_folders.iter().enumerate() {
-    //     let comma_suffix = if index == sorted_manga_folders.len() - 1 {
-    //         ""
-    //     } else {
-    //         ","
-    //     };
-    //     chapter_concat.push_str(&format!("({}, {}){}", chapter, page, comma_suffix));
-    // }
+    code_template.push_str("#[derive(Debug, PartialEq, Eq, Clone, Deserialize, Serialize)]\n");
+    code_template.push_str("pub struct ChapterState {\n");
+    code_template.push_str("    pub chapter: i16,\n");
+    code_template.push_str("    pub page: i8,\n");
+    code_template.push_str("    pub name: String,\n");
+    code_template.push_str("    pub ext: String,\n");
+    code_template.push_str("    pub is_dual: bool,\n");
+    code_template.push_str("}\n\n");
 
-    // chapter_concat.push_str("]");
+    code_template.push_str("type MangaName = String;\n");
 
-    println!("cargo:warning={:?}", &chapter_concat);
+    code_template.push_str(&format!(
+        "pub fn get_chapters() -> HashMap<MangaName, HashMap<i16, Vec<ChapterState>>> {{\n"
+    ));
+    code_template.push_str(&format!("    let mut chapter_state: HashMap<MangaName, HashMap<i16, Vec<ChapterState>>> = HashMap::new();\n"));
 
-    let chapter_map_rs = format!(
-        "
-        // Automatically generated - see build.rs
-        // Do not modify manually!
+    for (manga_name, chapters) in chapter_state {
+        code_template.push_str(&format!(
+            "    let mut {}_chapters: HashMap<i16, Vec<ChapterState>> = HashMap::new();\n",
+            manga_name
+        ));
+        for (chapter, chapter_states) in chapters {
+            code_template.push_str(&format!(
+                "    let mut chapter_{}: Vec<ChapterState> = Vec::new();\n",
+                chapter
+            ));
+            for chapter_state in chapter_states {
+                code_template.push_str(&format!("    chapter_{}.push(ChapterState {{ chapter: {}, page: {}, name: \"{}\".to_string(), ext: \"{}\".to_string(), is_dual: {} }});\n", chapter, chapter_state.chapter, chapter_state.page, chapter_state.name, chapter_state.ext, chapter_state.is_dual));
+            }
+            code_template.push_str(&format!(
+                "    {}_chapters.insert({}, chapter_{});\n",
+                manga_name, chapter, chapter
+            ));
+        }
+        code_template.push_str(&format!(
+            "    chapter_state.insert(\"{}\".to_string(), {}_chapters);\n",
+            manga_name, manga_name
+        ));
+    }
 
-        use std::collections::HashMap;
-        pub fn get_chapters() -> HashMap<i16, i8> {{
-        let chapter_state: HashMap<i16, i8> = HashMap::from({});
-            chapter_state
-        }}
-    
-    ",
-        chapter_concat
-    );
+    code_template.push_str("    chapter_state\n");
+    code_template.push_str("}\n");
 
     let dest_path = format!("{}/generated/chapter_map.rs", out_dir);
-    fs::write(&dest_path, chapter_map_rs).unwrap();
+    fs::write(&dest_path, code_template).unwrap();
 }

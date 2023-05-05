@@ -12,7 +12,7 @@ pub fn single_manga() -> Html {
     let chapter = state.chapter;
     let page = state.page;
 
-    let url = state.manga.to_url(&chapter, &page);
+    let url = state.get_current_url();
 
     {
         let img = img_ref.clone();

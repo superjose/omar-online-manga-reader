@@ -1,7 +1,4 @@
-use crate::generated::{
-    back::{get_chapters_v2, ChapterState},
-    chapter_map::get_chapters,
-};
+use crate::generated::chapter_map::{get_chapters, ChapterState};
 
 use std::{
     cmp::{max, min},
@@ -12,22 +9,25 @@ use yew::prelude::*;
 
 extern crate web_sys;
 
+const BASE_PATH: &str = "/assets/manga";
+
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum MangaBook {
     OnePiece,
 }
 
 impl MangaBook {
-    pub fn to_url(&self, chapter: &i16, page: &i8) -> String {
-        let manga_base = match self {
+    pub fn to_state_key(&self) -> String {
+        match self {
             MangaBook::OnePiece => "one_piece".to_owned(),
-        };
-        let prepend = if page < &10 { "0" } else { "" };
-        format!(
-            "/assets/manga/{}/{}/{}{}.png",
-            manga_base, chapter, prepend, page
-        )
+        }
     }
+}
+
+#[derive(PartialEq)]
+enum Direction {
+    Prev,
+    Next,
 }
 
 pub enum MangaAction {
@@ -48,15 +48,132 @@ pub enum ChangedBy {
 
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub struct MangaState {
-    chapter_state: HashMap<i16, i8>,
-    chapter_state_v2: HashMap<i16, Vec<ChapterState>>,
+    chapter_state: HashMap<String, HashMap<i16, Vec<ChapterState>>>,
     pub page: i8,
-    pub page_left: i8,
+    pub left_page: i8,
     pub total_pages: i8,
     pub total_chapters: i16,
     pub chapter: i16,
     pub manga: MangaBook,
     pub changed_by: ChangedBy,
+    pub dual_page_enabled: bool,
+}
+
+impl MangaState {
+    fn get_chapter_total_pages(&self, chapter: &i16) -> i8 {
+        *(&self
+            .chapter_state
+            .get(&self.manga.to_state_key())
+            .unwrap()
+            .get(chapter)
+            .unwrap_or(&Vec::<ChapterState>::new())
+            .len()) as i8
+    }
+
+    fn get_page(&self, page: &i8) -> &ChapterState {
+        self.chapter_state
+            .get(&self.manga.to_state_key())
+            .unwrap()
+            .get(&self.chapter)
+            .unwrap()
+            .get(usize::try_from(page - 1).unwrap())
+            .unwrap()
+    }
+
+    pub fn get_url(&self, page: &i8) -> String {
+        let page = self.get_page(page);
+        format!(
+            "{}/{}/{}/{}",
+            BASE_PATH,
+            self.manga.to_state_key(),
+            self.chapter,
+            page.name
+        )
+        .into()
+    }
+
+    pub fn get_url_list_for_current_chapter(&self) -> Vec<String> {
+        let mut pages = Vec::<String>::new();
+        for i in 1..=self.total_pages {
+            let url = self.get_url(&i);
+            pages.push(url)
+        }
+        pages
+    }
+
+    pub fn get_current_url(&self) -> String {
+        self.get_url(&self.page)
+    }
+
+    fn is_page_dual_page(&self, page: i8) -> bool {
+        let curr_page = self.get_page(&page);
+        curr_page.is_dual
+    }
+
+    fn process_page_change(&self, page: i8) -> (i8, i8) {
+        let page = min(max(page, 1), self.total_pages);
+        let left_page = if self.dual_page_enabled {
+            max(page - 1, 1)
+        } else {
+            page
+        };
+        (page, left_page)
+    }
+
+    fn advance_dual_page(&self, dir: Direction) -> (i8, i8) {
+        let page = match dir {
+            Direction::Prev => {
+                if (self.dual_page_enabled) {
+                    max(self.page - 2, 1)
+                } else {
+                    max(self.page - 1, 1)
+                }
+            }
+            Direction::Next => {
+                if (self.dual_page_enabled) {
+                    min(self.page + 2, self.total_pages)
+                } else {
+                    min(self.page + 1, self.total_pages)
+                }
+            }
+        };
+        let left_page = match dir {
+            Direction::Prev => {
+                if (self.dual_page_enabled) {
+                    max(self.left_page - 2, 2)
+                } else {
+                    max(self.left_page - 1, 1)
+                }
+            }
+            Direction::Next => {
+                if (self.dual_page_enabled) {
+                    min(self.left_page + 2, self.total_pages)
+                } else {
+                    min(self.left_page + 1, self.total_pages)
+                }
+            }
+        };
+        return self.process_dual_page(page, left_page);
+    }
+
+    fn process_dual_page(&self, page: i8, left_page: i8) -> (i8, i8) {
+        let is_page_dual_page = self.is_page_dual_page(page);
+        let is_left_page_dual_page = self.is_page_dual_page(left_page);
+
+        let (new_page, new_left_page) = if !self.dual_page_enabled {
+            (page, page)
+        } else if is_page_dual_page {
+            (page, page)
+        } else if !is_page_dual_page && is_left_page_dual_page {
+            (page, page)
+        } else if !is_page_dual_page && is_left_page_dual_page {
+            (left_page, left_page)
+        } else {
+            (page, left_page)
+        };
+
+        (new_page, new_left_page)
+    }
 }
 
 pub type MangaContext = UseReducerHandle<MangaState>;
@@ -64,21 +181,21 @@ pub type MangaContext = UseReducerHandle<MangaState>;
 impl Default for MangaState {
     fn default() -> Self {
         let chapter_state = get_chapters();
-        let chapter_state_v2 = get_chapters_v2();
-        let chapter = chapter_state.keys().max().unwrap().to_owned();
+        let one_piece_state = chapter_state.get("one_piece").unwrap();
+        let chapter = one_piece_state.keys().max().unwrap().to_owned();
         let total_chapters = chapter.clone();
-        let total_pages = chapter_state.get(&chapter).unwrap().to_owned();
+        let total_pages = one_piece_state.get(&chapter).unwrap().len() as i8;
 
         Self {
             chapter_state,
-            chapter_state_v2,
             page: 1,
-            page_left: 2,
+            left_page: 2,
             chapter,
             total_pages,
             total_chapters,
             manga: MangaBook::OnePiece,
             changed_by: ChangedBy::Navigation,
+            dual_page_enabled: false,
         }
     }
 }
@@ -90,26 +207,34 @@ impl Reducible for MangaState {
     fn reduce(self: Rc<Self>, action: Self::Action) -> Rc<Self> {
         match action {
             MangaAction::Prev => {
+                let (page, left_page) = self.advance_dual_page(Direction::Prev);
                 Self {
-                    page: max(self.page - 1, 1),
+                    page,
+                    left_page,
                     changed_by: ChangedBy::Navigation,
                     ..(*self).clone()
                 }
             }
             .into(),
             MangaAction::Next => {
-                let mut new_page = self.page + 1;
+                let (mut page, mut left_page) = self.advance_dual_page(Direction::Next);
+
                 let mut chapter = self.chapter;
                 let mut total_pages = self.total_pages;
 
-                if new_page > self.total_pages && chapter < self.total_chapters {
+                if left_page > self.total_pages
+                    || page > self.total_pages && chapter < self.total_chapters
+                {
                     chapter = self.chapter + 1;
-                    new_page = 1;
-                    total_pages = *self.chapter_state.get(&chapter).unwrap_or(&1);
+                    let (new_page, new_left_page) = self.process_dual_page(1, 2);
+                    page = new_page;
+                    left_page = new_left_page;
+                    total_pages = self.get_chapter_total_pages(&chapter);
                 }
 
                 Self {
-                    page: min(new_page, self.total_pages),
+                    page,
+                    left_page,
                     chapter,
                     total_pages,
                     changed_by: ChangedBy::Navigation,
@@ -118,12 +243,12 @@ impl Reducible for MangaState {
             }
             .into(),
             MangaAction::ChangeChapter(chapter) => {
-                let total_pages = self.chapter_state.get(&chapter).unwrap_or(&1);
+                let total_pages = self.get_chapter_total_pages(&chapter);
 
                 Self {
                     page: 1,
                     chapter,
-                    total_pages: *total_pages,
+                    total_pages,
                     changed_by: ChangedBy::Navigation,
                     ..(*self).clone()
                 }
@@ -131,11 +256,11 @@ impl Reducible for MangaState {
             }
             MangaAction::NextChapter => {
                 let next_chapter = min(self.chapter + 1, self.total_chapters);
-                let total_pages = self.chapter_state.get(&next_chapter).unwrap_or(&1);
+                let total_pages = self.get_chapter_total_pages(&next_chapter);
                 Self {
                     page: 1,
                     chapter: next_chapter,
-                    total_pages: *total_pages,
+                    total_pages,
                     changed_by: ChangedBy::Navigation,
                     ..(*self).clone()
                 }
@@ -143,12 +268,12 @@ impl Reducible for MangaState {
             }
             MangaAction::PrevChapter => {
                 let prev_chapter = max(self.chapter - 1, 1);
-                let total_pages = self.chapter_state.get(&prev_chapter).unwrap_or(&1);
+                let total_pages = self.get_chapter_total_pages(&prev_chapter);
 
                 Self {
                     page: 1,
                     chapter: prev_chapter,
-                    total_pages: *total_pages,
+                    total_pages,
                     changed_by: ChangedBy::Navigation,
                     ..(*self).clone()
                 }

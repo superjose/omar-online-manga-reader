@@ -10,13 +10,7 @@ use crate::{
 pub fn scroller() -> Html {
     let state = use_manga_context().unwrap();
 
-    let mut manga_pages: Vec<String> = Vec::new();
-    let chapter = state.chapter;
-    let total_pages = state.total_pages.to_owned();
-    for i in 1..=total_pages {
-        let page = state.manga.to_url(&chapter, &i);
-        manga_pages.push(page);
-    }
+    let mut manga_pages = state.get_url_list_for_current_chapter();
     {
         let changed_by = state.changed_by.clone();
         let page = state.page.clone();
