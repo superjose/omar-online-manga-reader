@@ -1,4 +1,4 @@
-use gloo::utils::window;
+use gloo::{console::log, utils::window};
 use wasm_bindgen::{prelude::Closure, JsCast, JsValue};
 use yew::prelude::*;
 
@@ -34,6 +34,7 @@ pub fn intersection_image(props: &IntersectionImageProps) -> Html {
                     for entry in entries {
                         let entry = IntersectionObserverEntry::from(entry);
                         let is_intersecting = entry.is_intersecting();
+
                         if is_intersecting && changed_by == ChangedBy::Manually {
                             state.dispatch(MangaAction::ChangePageManually(
                                 page_number.try_into().unwrap(),

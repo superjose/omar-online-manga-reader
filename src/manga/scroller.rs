@@ -10,7 +10,7 @@ use crate::{
 pub fn scroller() -> Html {
     let state = use_manga_context().unwrap();
 
-    let mut manga_pages = state.get_url_list_for_current_chapter();
+    let manga_pages = state.get_url_list_for_current_chapter();
     {
         let changed_by = state.changed_by.clone();
         let page = state.page.clone();
