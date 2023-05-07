@@ -41,6 +41,12 @@ pub fn manga_dropdown() -> Html {
             state.dispatch(MangaAction::ChangePage(value));
         })
     };
+    let handle_left_page_change = {
+        let state = state.clone();
+        Callback::from(move |value: i16| {
+            state.dispatch(MangaAction::ChangeLeftPage(value));
+        })
+    };
 
     options.reverse();
 
@@ -52,11 +58,28 @@ pub fn manga_dropdown() -> Html {
                 onchange={handle_chapter_change}
                 options_reversed={true}
             />
+            {
+                if state.dual_page_enabled {
+                    html! {
+                        <Dropdown
+                            options={pages_options.clone()}
+                            selected={state.left_page as i16}
+                            onchange={handle_left_page_change}
+                            />
+                    }
+                }
+                else {
+                    html! {
+                        <></>
+                    }
+                }
+            }
             <Dropdown
                 options={pages_options}
                 selected={state.page as i16}
                 onchange={handle_page_change}
             />
+
        </div>
     }
 }

@@ -26,7 +26,14 @@ pub fn intersection_image(props: &IntersectionImageProps) -> Html {
         let changed_by = state.changed_by.clone();
         use_effect(move || {
             let mut options = IntersectionObserverInit::new();
-            options.threshold(&JsValue::from(0.7));
+            let is_phone = window()
+                .match_media("(max-width: 320px)")
+                .unwrap()
+                .unwrap()
+                .matches();
+            let threshold = if is_phone { 0.7 } else { 0.6 };
+            log!("Thrrrreshold: {}", threshold);
+            options.threshold(&JsValue::from(threshold));
 
             let img = img.cast::<HtmlImageElement>().expect("image not set");
             let callback = Closure::wrap(Box::new(

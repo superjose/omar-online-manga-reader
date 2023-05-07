@@ -1,5 +1,6 @@
 use crate::generated::chapter_map::{get_chapters, ChapterState};
 use gloo::console::log;
+use wasm_bindgen::JsValue;
 
 use std::{
     cmp::{max, min},
@@ -38,14 +39,24 @@ pub enum MangaAction {
     NextChapter,
     ChangeChapter(i16),
     ChangePage(i16),
+    ChangeLeftPage(i16),
     ChangePageManually(i16),
     SetChangedBy(ChangedBy),
-    ToggleDualPage,
+    SetDualPage(bool),
 }
 #[derive(Debug, PartialEq, Eq, Clone)]
 pub enum ChangedBy {
     Navigation,
     Manually,
+}
+
+impl From<ChangedBy> for JsValue {
+    fn from(value: ChangedBy) -> Self {
+        match value {
+            ChangedBy::Navigation => JsValue::from("navigation"),
+            ChangedBy::Manually => JsValue::from("manually"),
+        }
+    }
 }
 
 #[derive(Debug, PartialEq, Eq, Clone)]
@@ -118,29 +129,64 @@ impl MangaState {
 
     fn advance_dual_page(&self, dir: Direction) -> (i8, i8) {
         let incr = if self.dual_page_enabled { 2 } else { 1 };
-        let page_base = if self.dual_page_enabled {
-            self.total_pages - self.total_pages % 2
+        let page_max = if self.dual_page_enabled {
+            self.total_pages - (self.total_pages % 2)
         } else {
             self.total_pages
         };
 
+        if self.page == self.left_page
+            && dir == Direction::Next
+            && self.is_page_dual_page(min(self.page + 1, self.total_pages))
+            && self.dual_page_enabled
+        {
+            return self.process_dual_page(
+                self.page + 1,
+                self.left_page + 1,
+                self.dual_page_enabled,
+            );
+        }
+        if self.page == self.left_page
+            && dir == Direction::Prev
+            && self.is_page_dual_page(max(self.page - 1, 1))
+            && self.dual_page_enabled
+        {
+            return self.process_dual_page(
+                self.page - 1,
+                self.left_page - 1,
+                self.dual_page_enabled,
+            );
+        }
+
         let page = match dir {
             Direction::Prev => max(self.page - incr, 1),
-            Direction::Next => min(self.page + incr, page_base),
+            Direction::Next => {
+                if self.is_page_dual_page(self.page) {
+                    min(self.page + 1, page_max)
+                } else {
+                    min(self.page + incr, page_max)
+                }
+            }
         };
         let left_page = match dir {
-            Direction::Prev => max(self.left_page - incr, 2),
-            Direction::Next => min(self.page + incr, self.total_pages),
+            Direction::Prev => {
+                if self.is_page_dual_page(self.page) {
+                    max(self.page - 1, 1)
+                } else {
+                    max(self.page - incr, 1)
+                }
+            }
+            Direction::Next => min(self.left_page + incr, self.total_pages),
         };
 
-        return self.process_dual_page(page, left_page);
+        return self.process_dual_page(page, left_page, self.dual_page_enabled);
     }
 
-    fn process_dual_page(&self, page: i8, left_page: i8) -> (i8, i8) {
+    fn process_dual_page(&self, page: i8, left_page: i8, dual_page_enabled: bool) -> (i8, i8) {
         let is_page_dual_page = self.is_page_dual_page(page);
         let is_left_page_dual_page = self.is_page_dual_page(left_page);
 
-        let (new_page, new_left_page) = if !self.dual_page_enabled {
+        let (new_page, new_left_page) = if !dual_page_enabled {
             (page, page)
         } else if is_page_dual_page {
             (page, page)
@@ -199,29 +245,46 @@ impl Reducible for MangaState {
             MangaAction::Next => {
                 let old_page = self.page;
                 let (mut page, mut left_page) = self.advance_dual_page(Direction::Next);
-                log!(
-                    "old_page: {}, page: {}, left_page: {}",
-                    old_page,
-                    page,
-                    left_page
-                );
+
                 let mut chapter = self.chapter;
                 let mut total_pages = self.total_pages;
 
                 if old_page == page && !self.has_reached_last_chapter() {
                     chapter = self.chapter + 1;
-                    let (new_page, new_left_page) = self.process_dual_page(1, 2);
+                    let (new_page, new_left_page) =
+                        self.process_dual_page(1, 2, self.dual_page_enabled);
                     page = new_page;
                     left_page = new_left_page;
                     total_pages = self.get_chapter_total_pages(&chapter);
                 }
-
+                log!("Page {}", page);
                 Self {
                     page,
                     left_page,
                     chapter,
                     total_pages,
                     changed_by: ChangedBy::Navigation,
+                    ..(*self).clone()
+                }
+            }
+            .into(),
+            MangaAction::SetDualPage(dual_page_enabled) => {
+                let (new_page, new_left_page) = match dual_page_enabled {
+                    true => {
+                        let page_max = self.total_pages - (self.total_pages % 2);
+                        let left_page_max = self.total_pages;
+
+                        let page = min(self.page, page_max);
+                        let left_page = min(self.page + 1, left_page_max);
+                        self.process_dual_page(page, left_page, true)
+                    }
+                    false => (self.page, self.page),
+                };
+
+                Self {
+                    page: new_page,
+                    left_page: new_left_page,
+                    dual_page_enabled,
                     ..(*self).clone()
                 }
             }
@@ -271,6 +334,14 @@ impl Reducible for MangaState {
                 }
             }
             .into(),
+            MangaAction::ChangeLeftPage(page) => {
+                Self {
+                    left_page: i8::try_from(page).unwrap(),
+                    changed_by: ChangedBy::Navigation,
+                    ..(*self).clone()
+                }
+            }
+            .into(),
             MangaAction::SetChangedBy(changed_by) => Self {
                 changed_by,
                 ..(*self).clone()
@@ -284,11 +355,6 @@ impl Reducible for MangaState {
                     changed_by: ChangedBy::Manually,
                     ..(*self).clone()
                 }
-            }
-            .into(),
-            MangaAction::ToggleDualPage => Self {
-                dual_page_enabled: !self.dual_page_enabled,
-                ..(*self).clone()
             }
             .into(),
         }

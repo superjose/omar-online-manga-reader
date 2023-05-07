@@ -6,37 +6,49 @@ use crate::{
         atoms::icon::Icon,
         molecules::{icon_button::icon_button::IconButton, icon_text_block::IconTextBlock},
     },
-    states::options::{use_manga_options_context, MangaOptionsAction, ReadingMode},
+    states::{
+        options::{use_manga_options_context, MangaOptionsAction, ReadingMode},
+        state::{use_manga_context, MangaAction},
+    },
     utils::utils::Align,
 };
 
 #[function_component(SettingsDropdown)]
 pub fn settings_dropdown() -> Html {
     let options_state = use_manga_options_context().unwrap();
+    let state = use_manga_context().unwrap();
 
     let set_page_view = {
         let options_state = options_state.clone();
+        let state = state.clone();
         Callback::from(move |_| {
             options_state.dispatch(MangaOptionsAction::SetReadingMode(ReadingMode::Page));
+            state.dispatch(MangaAction::SetDualPage(false));
         })
     };
     let set_scroller_view = {
         let options_state = options_state.clone();
+        let state = state.clone();
         Callback::from(move |_| {
             options_state.dispatch(MangaOptionsAction::SetReadingMode(ReadingMode::Scroller));
+            state.dispatch(MangaAction::SetDualPage(false));
         })
     };
 
     let set_grid_preview = {
         let options_state = options_state.clone();
+        let state = state.clone();
         Callback::from(move |_| {
             options_state.dispatch(MangaOptionsAction::SetReadingMode(ReadingMode::GridPreview));
+            state.dispatch(MangaAction::SetDualPage(false));
         })
     };
     let set_book_mode = {
         let options_state = options_state.clone();
+        let state = state.clone();
         Callback::from(move |_| {
             options_state.dispatch(MangaOptionsAction::SetReadingMode(ReadingMode::Book));
+            state.dispatch(MangaAction::SetDualPage(true));
         })
     };
 
@@ -54,10 +66,15 @@ pub fn settings_dropdown() -> Html {
         };
 
     html! {
+        <>
+
         <div class="fixed top-2 right-2 [&>.dropdown-content]:hover:block
         [&>button]:hover:rounded-bl-none
         [&>button]:hover:rounded-br-none
-            ">
+        focus-within[&>.dropdown-content]:block
+        [&>.dropdown-content]:focus-within:block
+        
+         ">
             <IconButton
                 class="w-20"
                     icon={Icon::Settings}
@@ -65,6 +82,7 @@ pub fn settings_dropdown() -> Html {
                     variant={ButtonVariant::Secondary} />
             <div class="hidden
                         absolute z-10 dropdown-content bg-white dark:bg-darkness
+                        hover:[&>div]:bg-slate-100 hover:[&>div]:dark:bg-darkness-primary
                         w-40 right-0
                         [&>div]:first-of-type:rounded-tl-lg
                         [&>div]:first-of-type:rounded-tr-lg
@@ -81,5 +99,6 @@ pub fn settings_dropdown() -> Html {
 
             </div>
           </div>
+          </>
     }
 }

@@ -7,7 +7,7 @@ pub enum SelectOptionValue {
     Int(i16),
 }
 
-#[derive(PartialEq)]
+#[derive(PartialEq, Clone)]
 pub struct SelectOption {
     pub label: String,
     pub value: SelectOptionValue,

@@ -2,19 +2,17 @@ use yew::prelude::*;
 
 use crate::states::state::use_manga_context;
 
-struct BookPages {
-    left_page: Option<String>,
-    right_page: String,
-}
-
 #[function_component(Book)]
 pub fn book() -> Html {
     let state = use_manga_context().unwrap();
-
+    let class = match state.left_page == state.page {
+        true => "grid-cols-1",
+        false => "grid-cols-2",
+    };
     html! {
         <div>
 
-            <div class="grid grid-cols-2">
+            <div class={format!("grid {}", class)}>
                 {if state.left_page == state.page {
                     html! {
                         <img src={state.get_current_url()} />

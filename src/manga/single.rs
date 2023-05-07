@@ -8,8 +8,7 @@ use crate::states::state::{use_manga_context, MangaAction};
 pub fn single_manga() -> Html {
     let state = use_manga_context().unwrap();
     let img_ref = use_node_ref();
-    // let page = cx.props.page_state;
-    let chapter = state.chapter;
+
     let page = state.page;
 
     let url = state.get_current_url();
