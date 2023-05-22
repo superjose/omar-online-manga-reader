@@ -9,19 +9,19 @@ pub fn manga() -> Html {
     let options_state = use_manga_options_context().unwrap();
 
     html! {
-        if options_state.reading_mode == ReadingMode::Page {
-            <SingleManga />
-        } else if options_state.reading_mode == ReadingMode::Scroller {
-            <Scroller />
-        }
-        else if options_state.reading_mode == ReadingMode::GridPreview {
-            <GridPreview />
-        }
-        else if options_state.reading_mode == ReadingMode::Book {
-            <Book />
-        }
-        else {
-            <div>{"Hola 😊"}</div>
+        match options_state.reading_mode {
+            ReadingMode::Page => {
+               html!{ <SingleManga />}
+            }
+            ReadingMode::Scroller => {
+                html! {<Scroller />}
+            }
+            ReadingMode::GridPreview => {
+                html! {<GridPreview />}
+            }
+            ReadingMode::Book => {
+                html! {<Book /> }
+            }
         }
     }
 }

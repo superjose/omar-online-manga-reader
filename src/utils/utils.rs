@@ -9,7 +9,6 @@ pub enum Color {
 #[derive(PartialEq, Clone)]
 pub enum Align {
     Left,
-
     Center,
 }
 impl Align {
