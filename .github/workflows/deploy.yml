@@ -59,7 +59,9 @@ jobs:
       pages: write
     runs-on: ubuntu-latest
     steps:
+      - name: Just echo
+        run: ls
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: dist # The folder the action should deploy.
+          folder: "./dist" # The folder the action should deploy.
