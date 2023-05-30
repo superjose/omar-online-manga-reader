@@ -55,13 +55,16 @@ jobs:
 
   deploy:
     needs: build
+    runs-on: ubuntu-latest
+    
     permissions:
       pages: write
-    runs-on: ubuntu-latest
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
     steps:
-      - name: Just echo
-        run: ls
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: "./dist" # The folder the action should deploy.
+        id: deployment
+        uses: actions/deploy-pages@v1
