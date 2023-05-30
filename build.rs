@@ -15,7 +15,7 @@ type MangaName = String;
 /**
  * This will generate the entire manga reading structure so the state.rs file can consume it
  */
-fn main() {
+fn main() -> Result<(), std::io::Error> {
     println!("cargo:rerun-if-changed=src/assets/manga");
     let out_dir = "./src/";
 
@@ -23,7 +23,7 @@ fn main() {
 
     let dir_path = "./src/assets/manga/"; // replace with your directory path
 
-    let manga_folders = fs::read_dir(dir_path).expect("Failed to read directory");
+    let manga_folders = fs::read_dir(dir_path)?;
 
     for read in manga_folders {
         let entry = match read {
@@ -152,4 +152,5 @@ fn main() {
 
     let dest_path = format!("{}/generated/chapter_map.rs", out_dir);
     fs::write(&dest_path, code_template).unwrap();
+    Ok(())
 }

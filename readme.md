@@ -2,10 +2,10 @@
 
 This is an online manga reader built in Rust using Web Assembly (Yew).
 
-**No manga provided**. Just the reader.
+**No manga is provided**. Just the reader.
 
 
-<img width="200px" style="display:block; margin: 0 auto; text-align:center;" src="src/assets/screenshots/2023-04-27-V1-Ready.png">
+<img width="200px" style="display:block; margin: 0 auto; text-align:center;" src="src/assets/screenshots/2023-05-30.png">
 
 
 You can include it in your site, run it locally or do whatever you want. 
@@ -25,7 +25,7 @@ I built a manga reader that made the reading experience unique and pleasant. I a
 - [ ] Continuous scroll mode - 
 - [ ] View thumbnails in a carousel while you were reading
 - [ ] Prefetch the pages while you were reading.
-- [ ] Save your progress and come back to where you left.
+- [ ] Save your progress and come back to where you left off.
 - [ ] Dim the background through a "turn off the lights"
 - [ ] Automatically control the manga page by changing its width, and height to match your screen (so you could read it from afar), or very close.
 - [ ] Read it from a TV and automatically scroll by a fixed timer (Cinema Mode). 
@@ -53,8 +53,8 @@ Create the following structure:<br/>
 
 1. Create a folder inside `src/assets` called `manga`.
 2. Inside it, create a folder name called `one_piece`.
-3. Then add the folder of the chapter in numbers: 
-E.g: Chapter 1042 is `1042`. 
+3. Then add the folder of the chapter in numbers:
+    E.g: Chapter 1042 is `1042`. 
 
 4. Add the pages inside the chapter's folder from 01 to last with the .jpg extension.
 E.g:
