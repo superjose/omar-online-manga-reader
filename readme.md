@@ -5,7 +5,7 @@ This is an online manga reader built in Rust using Web Assembly (Yew).
 **No manga is provided**. Just the reader.
 
 
-<img width="200px" style="display:block; margin: 0 auto; text-align:center;" src="src/assets/screenshots/2023-05-30.png">
+<img width="400px" style="display:block; margin: 0 auto; max-width:100%" src="src/assets/screenshots/2023-05-30.png">
 
 
 You can include it in your site, run it locally or do whatever you want. 
@@ -74,7 +74,7 @@ https://github.com/arctic-hen7/bonnie/wiki/Getting-Started
 https://dev.to/arctic_hen7/how-to-set-up-tailwind-css-with-yew-and-trunk-il9
 
 ### Notes
-- The build.rs file is used to read the files from a directory and return it in a concrete rust file that will be used by yew to extract it.
+- The build.rs file is used to read the files from a directory and return it in a concrete rust file that will be used by Yew to extract it.
 - https://github.dev/brooks-builds/full-stack-todo-rust-course
 
 

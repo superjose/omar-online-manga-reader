@@ -1,4 +1,5 @@
 /target
 /dist
-/src/assets/manga
+/src/assets/manga/
 /node_modules
+/src/generated/chapter_map.rs
