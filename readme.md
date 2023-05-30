@@ -20,16 +20,17 @@ In 2010, I began a site called [innerbleach.com](http://web.archive.org/web/2014
 I built a manga reader that made the reading experience unique and pleasant. I also believed it was one of its kind, as it allowed you to:
 
 - [x] Basic instantaneous manga reading (No Page loads)
+- [x] No loading between pages.
+- [x] View the manga side by side, creating a true reading experience.
+- [ ] Continuous scroll mode - 
 - [ ] View thumbnails in a carousel while you were reading
 - [ ] Prefetch the pages while you were reading.
-- [ ] No loading between pages.
-- [ ] View the manga side by side, creating a true reading experience.
 - [ ] Save your progress and come back to where you left.
 - [ ] Dim the background through a "turn off the lights"
-- [ ] Automatically control the manga page by changing its width, and height to match your screen (so you could read it from a far), or very close.
+- [ ] Automatically control the manga page by changing its width, and height to match your screen (so you could read it from afar), or very close.
 - [ ] Read it from a TV and automatically scroll by a fixed timer (Cinema Mode). 
 - [ ] View small thumbnails (Gallery Mode)
-- [ ] Create a playlist. You could mash up One Piece, Bleach, Fairy Tail and Naruto into one batch reading (And supported all the features mentioned above)
+- [ ] Create a playlist. You could mash up One Piece, Bleach, Fairy Tail and Naruto into one batch reading (And support all the features mentioned above)
 - [ ] Customize the color of the buttons.
 
 I'll try to create feature parity with it.
